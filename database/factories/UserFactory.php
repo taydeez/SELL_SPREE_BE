@@ -1,0 +1,59 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Factories;
+
+use App\Enums\UserRole;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+/**
+ * @extends Factory<User>
+ */
+class UserFactory extends Factory
+{
+    protected $model = User::class;
+
+    protected static ?string $password;
+
+    public function definition(): array
+    {
+        return [
+            'name'              => fake()->name(),
+            'email'             => fake()->unique()->safeEmail(),
+            'password'          => static::$password ??= Hash::make('password'),
+            'role'              => UserRole::Seller->value,
+            'email_verified_at' => now(),
+            'is_suspended'      => false,
+            'remember_token'    => Str::random(10),
+        ];
+    }
+
+    public function admin(): static
+    {
+        return $this->state(['role' => UserRole::Admin->value]);
+    }
+
+    public function seller(): static
+    {
+        return $this->state(['role' => UserRole::Seller->value]);
+    }
+
+    public function affiliate(): static
+    {
+        return $this->state(['role' => UserRole::Affiliate->value]);
+    }
+
+    public function suspended(): static
+    {
+        return $this->state(['is_suspended' => true]);
+    }
+
+    public function unverified(): static
+    {
+        return $this->state(['email_verified_at' => null]);
+    }
+}
