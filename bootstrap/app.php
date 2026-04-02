@@ -31,6 +31,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('api/v1/affiliate')
                 ->name('affiliate.')
                 ->group(base_path('routes/api/affiliate.php'));
+
+            Route::middleware(['api', ForceJsonResponse::class])
+                ->prefix('api/v1/public')
+                ->name('public.')
+                ->group(base_path('routes/api/public.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

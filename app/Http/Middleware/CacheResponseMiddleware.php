@@ -72,6 +72,11 @@ class CacheResponseMiddleware
         return str_contains($request->getPathInfo(), '/auth/');
     }
 
+    public static function forgetForUser(string $userId, string $url): void
+    {
+        Cache::forget('response:' . md5($userId . '|' . $url));
+    }
+
     private function buildKey(Request $request): string
     {
         $url  = $request->fullUrl();

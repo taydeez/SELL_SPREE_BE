@@ -7,6 +7,8 @@ namespace App\Domain\Seller\Actions;
 use App\Enums\ProductStatus;
 use App\Exceptions\BusinessException;
 use App\Models\Product;
+use App\Models\Tag;
+use Illuminate\Support\Str;
 
 class UpdateProductAction
 {
@@ -21,6 +23,15 @@ class UpdateProductAction
             'description' => $data['description'] ?? null,
             'price'       => $data['price'] ?? null,
         ], fn ($v) => $v !== null));
+
+        if (array_key_exists('tags', $data)) {
+            $tagIds = collect($data['tags'] ?? [])->map(fn ($name) => Tag::firstOrCreate(
+                ['slug' => Str::slug($name)],
+                ['name' => strip_tags(trim($name))],
+            )->id)->all();
+
+            $product->tags()->sync($tagIds);
+        }
 
         return $product->fresh();
     }

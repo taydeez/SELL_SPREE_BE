@@ -4,18 +4,22 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seller\Product;
 
+use App\Domain\Seller\Actions\ConfirmFileUploadAction;
 use App\Exceptions\BusinessException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Seller\ConfirmUploadRequest;
 use App\Http\Resources\ApiResponse;
-use App\Http\Resources\Seller\ProductResource;
+use App\Http\Resources\Seller\ProductFileResource;
 use App\Models\Product;
 use App\Models\Seller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
-class ShowProductController extends Controller
+class ConfirmUploadController extends Controller
 {
-    public function __invoke(Product $product): JsonResponse
+    public function __construct(private readonly ConfirmFileUploadAction $action) {}
+
+    public function __invoke(ConfirmUploadRequest $request, Product $product): JsonResponse
     {
         $seller = Seller::where('user_id', Auth::guard('seller')->id())->firstOrFail();
 
@@ -23,6 +27,8 @@ class ShowProductController extends Controller
             throw BusinessException::forbidden();
         }
 
-        return ApiResponse::success(new ProductResource($product->load(['variants', 'productFiles', 'tags'])));
+        $file = $this->action->run($product, $request->validated());
+
+        return ApiResponse::success(new ProductFileResource($file));
     }
 }

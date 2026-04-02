@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Enums\OrderStatus;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\Seller;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->sellerUser = User::factory()->seller()->create();
@@ -213,15 +213,19 @@ it('seller cannot delete another sellers product', function () {
 // ─── Publish product ──────────────────────────────────────────────────────
 
 it('seller can publish a draft product', function () {
-    Storage::fake('r2');
-
     $product = Product::factory()->for($this->seller)->create([
         'status' => ProductStatus::Draft->value,
     ]);
 
-    // Attach a fake product file so PublishProductAction passes the file check
-    $product->addMedia(UploadedFile::fake()->create('product.pdf', 100, 'application/pdf'))
-        ->toMediaCollection('product_file');
+    $product->productFiles()->create([
+        'collection'    => 'product_file',
+        'path'          => 'products/' . $product->id . '/product_file/fake.pdf',
+        'file_name'     => 'fake.pdf',
+        'original_name' => 'fake.pdf',
+        'mime_type'     => 'application/pdf',
+        'size'          => 1024,
+        'disk'          => 'r2',
+    ]);
 
     $response = $this->actingAs($this->sellerUser, 'seller')
         ->patchJson("/api/v1/seller/products/{$product->id}/publish");
@@ -284,4 +288,79 @@ it('seller cannot pause another sellers product', function () {
         ->patchJson("/api/v1/seller/products/{$product->id}/pause");
 
     $response->assertStatus(403);
+});
+
+// ─── File replacement lock ────────────────────────────────────────────────────
+
+it('seller can replace product file before any purchase', function () {
+    $product = Product::factory()->for($this->seller)->active()->create();
+
+    $product->productFiles()->create([
+        'collection'    => 'product_file',
+        'path'          => 'products/' . $product->id . '/product_file/old.pdf',
+        'file_name'     => 'old.pdf',
+        'original_name' => 'old.pdf',
+        'mime_type'     => 'application/pdf',
+        'size'          => 1024,
+        'disk'          => 'r2',
+    ]);
+
+    $response = $this->actingAs($this->sellerUser, 'seller')
+        ->postJson("/api/v1/seller/products/{$product->id}/confirm-upload", [
+            'collection'    => 'product_file',
+            'object_key'    => 'products/' . $product->id . '/product_file/new.pdf',
+            'file_name'     => 'new.pdf',
+            'original_name' => 'new.pdf',
+            'mime_type'     => 'application/pdf',
+            'size'          => 2048,
+        ]);
+
+    $response->assertStatus(200);
+});
+
+it('seller cannot replace product file after a paid order', function () {
+    $product = Product::factory()->for($this->seller)->active()->create();
+
+    $product->productFiles()->create([
+        'collection'    => 'product_file',
+        'path'          => 'products/' . $product->id . '/product_file/old.pdf',
+        'file_name'     => 'old.pdf',
+        'original_name' => 'old.pdf',
+        'mime_type'     => 'application/pdf',
+        'size'          => 1024,
+        'disk'          => 'r2',
+    ]);
+
+    Order::factory()->paid()->for($product)->for($this->seller)->create();
+
+    $response = $this->actingAs($this->sellerUser, 'seller')
+        ->postJson("/api/v1/seller/products/{$product->id}/confirm-upload", [
+            'collection'    => 'product_file',
+            'object_key'    => 'products/' . $product->id . '/product_file/new.pdf',
+            'file_name'     => 'new.pdf',
+            'original_name' => 'new.pdf',
+            'mime_type'     => 'application/pdf',
+            'size'          => 2048,
+        ]);
+
+    $response->assertStatus(422)
+        ->assertJsonPath('success', false);
+});
+
+it('seller can still replace cover image after a paid order', function () {
+    $product = Product::factory()->for($this->seller)->active()->create();
+
+    Order::factory()->paid()->for($product)->for($this->seller)->create();
+
+    $response = $this->actingAs($this->sellerUser, 'seller')
+        ->postJson("/api/v1/seller/products/{$product->id}/confirm-upload", [
+            'collection'    => 'cover',
+            'object_key'    => 'products/' . $product->id . '/cover/new.jpg',
+            'file_name'     => 'new.jpg',
+            'original_name' => 'new.jpg',
+            'mime_type'     => 'image/jpeg',
+            'size'          => 512,
+        ]);
+
+    $response->assertStatus(200);
 });

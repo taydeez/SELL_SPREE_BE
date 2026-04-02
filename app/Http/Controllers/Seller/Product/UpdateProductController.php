@@ -29,6 +29,6 @@ class UpdateProductController extends Controller
 
         $updated = $this->action->run($product, $request->validated());
 
-        return ApiResponse::success(new ProductResource($updated->load('variants')));
+        return ApiResponse::success(new ProductResource($updated->load(['variants', 'tags'])));
     }
 }

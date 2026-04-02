@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             SellerSeeder::class,
             AffiliateSeeder::class,
             ProductSeeder::class,
+            TagSeeder::class,
             OrderSeeder::class,
             PaymentConfigSeeder::class,
         ]);

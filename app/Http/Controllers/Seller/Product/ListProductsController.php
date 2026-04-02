@@ -19,7 +19,7 @@ class ListProductsController extends Controller
         $seller = Seller::where('user_id', Auth::guard('seller')->id())->firstOrFail();
 
         $products = $seller->products()
-            ->with('variants')
+            ->with(['variants', 'productFiles', 'tags'])
             ->when($request->status, fn ($q, $s) => $q->where('status', $s))
             ->latest()
             ->paginate(15);
