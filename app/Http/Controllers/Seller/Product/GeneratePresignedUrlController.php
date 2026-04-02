@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Seller\Product;
 
+use App\Domain\Seller\Actions\GeneratePresignedUploadUrlAction;
 use App\Exceptions\BusinessException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Seller\GeneratePresignedUrlRequest;
 use App\Http\Resources\ApiResponse;
-use App\Http\Resources\Seller\ProductResource;
 use App\Models\Product;
 use App\Models\Seller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
-class ShowProductController extends Controller
+class GeneratePresignedUrlController extends Controller
 {
-    public function __invoke(Product $product): JsonResponse
+    public function __construct(private readonly GeneratePresignedUploadUrlAction $action) {}
+
+    public function __invoke(GeneratePresignedUrlRequest $request, Product $product): JsonResponse
     {
         $seller = Seller::where('user_id', Auth::guard('seller')->id())->firstOrFail();
 
@@ -23,6 +26,8 @@ class ShowProductController extends Controller
             throw BusinessException::forbidden();
         }
 
-        return ApiResponse::success(new ProductResource($product->load(['variants', 'productFiles', 'tags'])));
+        $result = $this->action->run($product, $request->validated());
+
+        return ApiResponse::success($result);
     }
 }

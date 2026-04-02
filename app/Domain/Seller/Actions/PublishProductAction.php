@@ -16,7 +16,7 @@ class PublishProductAction
             throw BusinessException::invalidOperation('Suspended products cannot be published.');
         }
 
-        if (! $product->getFirstMedia('product_file')) {
+        if (! $product->productFiles()->where('collection', 'product_file')->exists()) {
             throw BusinessException::invalidOperation('Product must have a file before publishing.');
         }
 

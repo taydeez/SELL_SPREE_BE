@@ -17,6 +17,8 @@ class CreateProductRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:5000'],
             'type'        => ['required', new Enum(ProductType::class)],
             'price'       => ['required', 'integer', 'min:0'],
+            'tags'        => ['nullable', 'array', 'max:10'],
+            'tags.*'      => ['string', 'min:2', 'max:50'],
         ];
     }
 }

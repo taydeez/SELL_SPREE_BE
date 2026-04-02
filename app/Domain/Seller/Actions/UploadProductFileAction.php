@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Seller\Actions;
 
+use App\Enums\OrderStatus;
 use App\Exceptions\BusinessException;
 use App\Models\Product;
 use Illuminate\Http\UploadedFile;
@@ -13,6 +14,13 @@ class UploadProductFileAction
 {
     public function run(Product $product, UploadedFile $file): Media
     {
+        if (
+            $product->productFiles()->where('collection', 'product_file')->exists() &&
+            $product->orders()->where('status', OrderStatus::Paid->value)->exists()
+        ) {
+            throw BusinessException::invalidOperation('Product file cannot be replaced after a purchase has been made.');
+        }
+
         $allowedMimes = $product->type->allowedMimeTypes();
 
         if (! in_array($file->getMimeType(), $allowedMimes, true)) {

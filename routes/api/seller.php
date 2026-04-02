@@ -15,13 +15,17 @@ use App\Http\Controllers\Seller\Product\DeleteProductController;
 use App\Http\Controllers\Seller\Product\ListProductsController;
 use App\Http\Controllers\Seller\Product\PauseProductController;
 use App\Http\Controllers\Seller\Product\PublishProductController;
+use App\Http\Controllers\Seller\Product\ProductStatsController;
 use App\Http\Controllers\Seller\Product\ShowProductController;
 use App\Http\Controllers\Seller\Product\UpdateProductController;
+use App\Http\Controllers\Seller\Product\ConfirmUploadController;
+use App\Http\Controllers\Seller\Product\GeneratePresignedUrlController;
 use App\Http\Controllers\Seller\Product\UploadCoverController;
 use App\Http\Controllers\Seller\Product\UploadFileController;
 use App\Http\Controllers\Seller\Settings\DeleteAccountController;
 use App\Http\Controllers\Seller\Settings\UpdatePasswordController;
 use App\Http\Controllers\Seller\Settings\UpdateProfileController;
+use App\Http\Controllers\Seller\Tag\SuggestTagsController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Auth (public) ───────────────────────────────────────────────────────────
@@ -41,12 +45,18 @@ Route::middleware('auth:seller')->group(function () {
     Route::get('products', ListProductsController::class);
     Route::post('products', CreateProductController::class);
     Route::get('products/{product}', ShowProductController::class);
+    Route::get('products/{product}/stats', ProductStatsController::class);
     Route::patch('products/{product}', UpdateProductController::class);
     Route::delete('products/{product}', DeleteProductController::class);
     Route::patch('products/{product}/publish', PublishProductController::class);
     Route::patch('products/{product}/pause', PauseProductController::class);
     Route::post('products/{product}/cover', UploadCoverController::class);
     Route::post('products/{product}/file', UploadFileController::class);
+    Route::post('products/{product}/presign', GeneratePresignedUrlController::class);
+    Route::post('products/{product}/confirm-upload', ConfirmUploadController::class);
+
+    // Tags
+    Route::get('tags/suggest', SuggestTagsController::class);
 
     // Orders
     Route::get('orders', ListOrdersController::class);

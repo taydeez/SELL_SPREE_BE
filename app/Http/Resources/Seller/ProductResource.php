@@ -21,8 +21,20 @@ class ProductResource extends JsonResource
             'status'      => $this->status?->value,
             'sales_count' => $this->sales_count,
             'view_count'  => $this->view_count,
-            'cover_url'   => $this->getFirstMediaUrl('cover'),
-            'has_file'    => $this->getFirstMedia('product_file') !== null,
+            'cover_url'   => $this->whenLoaded('productFiles',
+                fn () => $this->productFiles->firstWhere('collection', 'cover')?->signed_url,
+            ),
+            'has_file'    => $this->whenLoaded('productFiles',
+                fn () => $this->productFiles->where('collection', 'product_file')->isNotEmpty(),
+                fn () => false,
+            ),
+            'tags'        => $this->whenLoaded('tags', fn () =>
+                $this->tags->map(fn ($t) => [
+                    'id'   => $t->id,
+                    'name' => $t->name,
+                    'slug' => $t->slug,
+                ])
+            ),
             'variants'    => $this->whenLoaded('variants', fn () =>
                 $this->variants->map(fn ($v) => [
                     'id'         => $v->id,
