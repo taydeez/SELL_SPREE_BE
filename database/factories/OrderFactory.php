@@ -61,6 +61,37 @@ class OrderFactory extends Factory
         return $this->state(['status' => OrderStatus::Refunded->value]);
     }
 
+    public function ticket(\App\Models\ProductVariant $variant, string $attendeeName): static
+    {
+        return $this->state([
+            'variant_id'   => $variant->id,
+            'attendee_name' => $attendeeName,
+            'amount'        => $variant->price,
+            'platform_fee'  => (int) round($variant->price * 0.10),
+            'seller_earnings' => (int) round($variant->price * 0.90),
+            'download_token' => null,
+            'expires_at'     => null,
+        ]);
+    }
+
+    public function ticketPaid(\App\Models\ProductVariant $variant, string $attendeeName): static
+    {
+        $ticketNumber = 'TKT-' . now()->format('Ymd') . '-' . strtoupper(bin2hex(random_bytes(4)));
+
+        return $this->state([
+            'variant_id'     => $variant->id,
+            'attendee_name'  => $attendeeName,
+            'amount'         => $variant->price,
+            'platform_fee'   => (int) round($variant->price * 0.10),
+            'seller_earnings' => (int) round($variant->price * 0.90),
+            'status'         => \App\Enums\OrderStatus::Paid->value,
+            'payment_ref'    => strtoupper(\Illuminate\Support\Str::random(16)),
+            'ticket_number'  => $ticketNumber,
+            'download_token' => null,
+            'expires_at'     => null,
+        ]);
+    }
+
     public function withAffiliate(\App\Models\AffiliateLink $link, int $commissionRate = 10): static
     {
         return $this->state(function (array $attrs) use ($link, $commissionRate) {

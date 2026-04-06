@@ -25,7 +25,11 @@ use App\Http\Controllers\Seller\Product\UploadFileController;
 use App\Http\Controllers\Seller\Settings\DeleteAccountController;
 use App\Http\Controllers\Seller\Settings\UpdatePasswordController;
 use App\Http\Controllers\Seller\Settings\UpdateProfileController;
+use App\Http\Controllers\Seller\Event\CheckInAttendeeController;
 use App\Http\Controllers\Seller\Tag\SuggestTagsController;
+use App\Http\Controllers\Seller\Variant\AddVariantController;
+use App\Http\Controllers\Seller\Variant\DeleteVariantController;
+use App\Http\Controllers\Seller\Variant\UpdateVariantController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Auth (public) ───────────────────────────────────────────────────────────
@@ -55,12 +59,20 @@ Route::middleware('auth:seller')->group(function () {
     Route::post('products/{product}/presign', GeneratePresignedUrlController::class);
     Route::post('products/{product}/confirm-upload', ConfirmUploadController::class);
 
+    // Variants
+    Route::post('products/{product}/variants', AddVariantController::class);
+    Route::patch('products/{product}/variants/{variant}', UpdateVariantController::class);
+    Route::delete('products/{product}/variants/{variant}', DeleteVariantController::class);
+
     // Tags
     Route::get('tags/suggest', SuggestTagsController::class);
 
     // Orders
     Route::get('orders', ListOrdersController::class);
     Route::get('orders/{order}', ShowOrderController::class);
+
+    // Events / Check-in
+    Route::post('events/{product}/checkin', CheckInAttendeeController::class);
 
     // Settings
     Route::patch('settings/profile', UpdateProfileController::class);

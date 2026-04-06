@@ -16,7 +16,7 @@ class ShowPublicProductController extends Controller
     {
         $product = Product::active()
             ->where('slug', $slug)
-            ->with(['seller', 'productFiles', 'tags'])
+            ->with(['seller', 'productFiles', 'tags', 'event', 'variants'])
             ->firstOrFail();
 
         $product->increment('view_count');

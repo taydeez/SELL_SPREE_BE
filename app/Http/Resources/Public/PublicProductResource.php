@@ -26,6 +26,23 @@ class PublicProductResource extends JsonResource
             'tags'        => $this->whenLoaded('tags', fn () =>
                 $this->tags->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'slug' => $t->slug])
             ),
+            'event'       => $this->whenLoaded('event', fn () =>
+                $this->event ? new ProductEventResource($this->event) : null
+            ),
+            'variants'    => $this->when(
+                $this->type?->value === 'ticket',
+                fn () => $this->whenLoaded('variants', fn () =>
+                    $this->variants
+                        ->where('is_active', true)
+                        ->sortBy('sort_order')
+                        ->map(fn ($v) => [
+                            'id'    => $v->id,
+                            'name'  => $v->name,
+                            'price' => $v->price,
+                            'stock' => $v->stock,
+                        ])->values()
+                )
+            ),
             'seller'      => $this->whenLoaded('seller', fn () => [
                 'store_name' => $this->seller->store_name,
                 'store_slug' => $this->seller->store_slug,

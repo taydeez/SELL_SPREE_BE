@@ -21,7 +21,7 @@ class ListLinksController extends Controller
         $links = $affiliate->links()
             ->with('product')
             ->when(
-                $request->has('active'),
+                $request->filled('active'),
                 fn ($q) => $q->where('is_active', filter_var($request->active, FILTER_VALIDATE_BOOLEAN))
             )
             ->latest()

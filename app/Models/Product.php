@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -105,6 +106,11 @@ class Product extends Model implements HasMedia
         return $this->belongsToMany(Tag::class, 'product_tags');
     }
 
+    public function event(): HasOne
+    {
+        return $this->hasOne(ProductEvent::class);
+    }
+
     // ─── Scopes ──────────────────────────────────────────────────────────────
 
     public function scopeActive($query)
@@ -115,5 +121,12 @@ class Product extends Model implements HasMedia
     public function scopeByType($query, ProductType $type)
     {
         return $query->where('type', $type->value);
+    }
+
+    // ─── Helpers ─────────────────────────────────────────────────────────────
+
+    public function isTicket(): bool
+    {
+        return $this->type === ProductType::Ticket;
     }
 }

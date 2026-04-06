@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Enums\ProductType;
 use App\Models\Affiliate;
 use App\Models\AffiliateLink;
 use App\Models\AffiliateSale;
@@ -16,7 +17,7 @@ class OrderSeeder extends Seeder
 {
     public function run(): void
     {
-        $sellers  = Seller::approved()->with('products')->get();
+        $sellers    = Seller::approved()->with('products.variants')->get();
         $affiliates = Affiliate::with('links')->get();
 
         if ($sellers->isEmpty()) {
@@ -31,7 +32,8 @@ class OrderSeeder extends Seeder
                 continue;
             }
 
-            foreach ($products->take(2) as $product) {
+            // Standard (non-ticket) orders for the first 2 products
+            foreach ($products->filter(fn ($p) => $p->type !== ProductType::Ticket)->take(2) as $product) {
                 // 3 direct paid orders
                 Order::factory()
                     ->count(3)
@@ -74,6 +76,47 @@ class OrderSeeder extends Seeder
                         'commission_amount' => $order->affiliate_earnings,
                     ]);
                 }
+            }
+
+            // Ticket orders for ticket products
+            foreach ($products->filter(fn ($p) => $p->type === ProductType::Ticket) as $ticketProduct) {
+                $variants = $ticketProduct->variants->where('is_active', true);
+
+                if ($variants->isEmpty()) {
+                    continue;
+                }
+
+                $variant = $variants->first();
+
+                // 3 paid ticket orders
+                for ($i = 0; $i < 3; $i++) {
+                    Order::factory()
+                        ->ticketPaid($variant, fake()->name())
+                        ->state([
+                            'product_id' => $ticketProduct->id,
+                            'seller_id'  => $seller->id,
+                        ])
+                        ->create();
+                }
+
+                // 1 checked-in ticket order
+                $checkedIn = Order::factory()
+                    ->ticketPaid($variant, fake()->name())
+                    ->state([
+                        'product_id'    => $ticketProduct->id,
+                        'seller_id'     => $seller->id,
+                        'checked_in_at' => now()->subHours(2),
+                    ])
+                    ->create();
+
+                // 1 pending ticket order (payment not completed)
+                Order::factory()
+                    ->ticket($variant, fake()->name())
+                    ->state([
+                        'product_id' => $ticketProduct->id,
+                        'seller_id'  => $seller->id,
+                    ])
+                    ->create();
             }
         }
 

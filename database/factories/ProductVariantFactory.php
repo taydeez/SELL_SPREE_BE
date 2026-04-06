@@ -31,4 +31,20 @@ class ProductVariantFactory extends Factory
     {
         return $this->state(['is_active' => false]);
     }
+
+    public function ticketTier(): static
+    {
+        return $this->state([
+            'name'       => fake()->randomElement(['General Admission', 'VIP', 'Early Bird', 'Student', 'Premium']),
+            'price'      => fake()->numberBetween(100000, 2000000),
+            'stock'      => fake()->numberBetween(10, 200),
+            'is_active'  => true,
+            'sort_order' => fake()->numberBetween(0, 5),
+        ]);
+    }
+
+    public function soldOut(): static
+    {
+        return $this->state(['stock' => 0]);
+    }
 }

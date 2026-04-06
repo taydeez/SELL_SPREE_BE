@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Storage;
 
 class Order extends Model
 {
@@ -18,8 +19,13 @@ class Order extends Model
     protected $fillable = [
         'buyer_email',
         'product_id',
+        'variant_id',
         'seller_id',
         'affiliate_link_id',
+        'attendee_name',
+        'ticket_number',
+        'qr_code_path',
+        'checked_in_at',
         'amount',
         'platform_fee',
         'seller_earnings',
@@ -40,6 +46,7 @@ class Order extends Model
             'affiliate_earnings' => 'integer',
             'status'             => OrderStatus::class,
             'expires_at'         => 'datetime',
+            'checked_in_at'      => 'datetime',
         ];
     }
 
@@ -58,6 +65,11 @@ class Order extends Model
     public function affiliateLink(): BelongsTo
     {
         return $this->belongsTo(AffiliateLink::class);
+    }
+
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 
     public function affiliateSale(): HasOne
@@ -92,5 +104,19 @@ class Order extends Model
     public function isExpired(): bool
     {
         return $this->expires_at !== null && $this->expires_at->isPast();
+    }
+
+    public function isCheckedIn(): bool
+    {
+        return $this->checked_in_at !== null;
+    }
+
+    public function qrCodeUrl(): ?string
+    {
+        if (!$this->qr_code_path) {
+            return null;
+        }
+
+        return Storage::disk('r2')->temporaryUrl($this->qr_code_path, now()->addHour());
     }
 }
