@@ -12,6 +12,13 @@ use App\Http\Controllers\Admin\Dashboard\GetStatsController;
 use App\Http\Controllers\Admin\Dashboard\GetTractionController;
 use App\Http\Controllers\Admin\Order\ListOrdersController;
 use App\Http\Controllers\Admin\Order\ShowOrderController;
+use App\Http\Controllers\Admin\Product\ListProductsController;
+use App\Http\Controllers\Admin\Product\ShowProductController;
+use App\Http\Controllers\Admin\Product\SuspendProductController;
+use App\Http\Controllers\Admin\Product\PauseProductController;
+use App\Http\Controllers\Admin\Product\RestoreProductController;
+use App\Http\Controllers\Admin\Transaction\ListTransactionsController;
+use App\Http\Controllers\Admin\Transaction\ShowTransactionController;
 use App\Http\Controllers\Admin\Payment\ActivateProviderController;
 use App\Http\Controllers\Admin\Payment\ListPaymentConfigsController;
 use App\Http\Controllers\Admin\Payment\UpsertPaymentConfigController;
@@ -21,6 +28,8 @@ use App\Http\Controllers\Admin\Seller\ListSellersController;
 use App\Http\Controllers\Admin\Seller\ShowSellerController;
 use App\Http\Controllers\Admin\Seller\SuspendSellerController;
 use App\Http\Controllers\Admin\Seller\UnsuspendSellerController;
+use App\Http\Controllers\Admin\Account\UpdatePasswordController;
+use App\Http\Controllers\Admin\Account\UpdateProfileController;
 use App\Http\Controllers\Auth\Admin\CurrentUserController;
 use App\Http\Controllers\Auth\Admin\LoginController;
 use App\Http\Controllers\Auth\Admin\LogoutController;
@@ -56,12 +65,27 @@ Route::middleware('auth:admin')->group(function () {
     Route::patch('affiliates/{affiliate}/unsuspend', UnsuspendAffiliateController::class);
     Route::delete('affiliates/{affiliate}', DeleteAffiliateController::class);
 
+    // Products
+    Route::get('products', ListProductsController::class);
+    Route::get('products/{product}', ShowProductController::class);
+    Route::patch('products/{product}/suspend', SuspendProductController::class);
+    Route::patch('products/{product}/pause', PauseProductController::class);
+    Route::patch('products/{product}/restore', RestoreProductController::class);
+
     // Orders
     Route::get('orders', ListOrdersController::class);
     Route::get('orders/{order}', ShowOrderController::class);
+
+    // Transactions
+    Route::get('transactions', ListTransactionsController::class);
+    Route::get('transactions/{transaction}', ShowTransactionController::class);
 
     // Payment configs
     Route::get('payment-configs', ListPaymentConfigsController::class);
     Route::post('payment-configs', UpsertPaymentConfigController::class);
     Route::patch('payment-configs/{provider}/activate', ActivateProviderController::class);
+
+    // Account settings
+    Route::patch('account/profile', UpdateProfileController::class);
+    Route::patch('account/password', UpdatePasswordController::class);
 });

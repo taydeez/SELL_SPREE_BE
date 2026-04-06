@@ -14,7 +14,7 @@ class AffiliateLinkResource extends JsonResource
         return [
             'id'           => $this->id,
             'slug'         => $this->slug,
-            'link_url'     => url("/go/{$this->slug}"),
+            'link_url'     => rtrim(config('app.frontend_url'), '/') . "/go/{$this->slug}",
             'is_active'    => $this->is_active,
             'view_count'   => $this->view_count,
             'click_count'  => $this->click_count,

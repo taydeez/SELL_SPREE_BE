@@ -40,9 +40,21 @@ class ProductResource extends JsonResource
                     'id'         => $v->id,
                     'name'       => $v->name,
                     'price'      => $v->price,
+                    'stock'      => $v->stock,
                     'is_active'  => $v->is_active,
+                    'sort_order' => $v->sort_order,
                 ])
             ),
+            'event'       => $this->whenLoaded('event', fn () => $this->event ? [
+                'event_type'          => $this->event->event_type?->value,
+                'event_date'          => $this->event->event_date?->toIso8601String(),
+                'event_end_date'      => $this->event->event_end_date?->toIso8601String(),
+                'timezone'            => $this->event->timezone,
+                'venue_name'          => $this->event->venue_name,
+                'venue_address'       => $this->event->venue_address,
+                'stream_url'          => $this->event->stream_url,
+                'access_instructions' => $this->event->access_instructions,
+            ] : null),
             'created_at'  => $this->created_at,
             'updated_at'  => $this->updated_at,
         ];

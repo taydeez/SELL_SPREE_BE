@@ -78,10 +78,14 @@ class ProductStatsController extends Controller
             ->paid()
             ->latest()
             ->limit(10)
-            ->get(['id', 'buyer_email', 'amount', 'seller_earnings', 'payment_provider', 'created_at'])
+            ->get(['id', 'buyer_email', 'attendee_name', 'variant_id', 'amount', 'seller_earnings', 'payment_provider', 'ticket_number', 'checked_in_at', 'created_at'])
             ->map(fn ($o) => [
                 'id'               => $o->id,
                 'buyer_email'      => $o->buyer_email,
+                'attendee_name'    => $o->attendee_name,
+                'variant_id'       => $o->variant_id,
+                'ticket_number'    => $o->ticket_number,
+                'checked_in_at'    => $o->checked_in_at,
                 'amount'           => $o->amount,
                 'seller_earnings'  => $o->seller_earnings,
                 'payment_provider' => $o->payment_provider,
@@ -105,6 +109,32 @@ class ProductStatsController extends Controller
                 'is_active'      => $l->is_active,
             ]);
 
+        // ─── Ticket-specific stats ────────────────────────────────────────────
+        $ticketStats = null;
+
+        if ($product->isTicket()) {
+            $product->load(['variants', 'event']);
+
+            $checkedInCount = $product->orders()->paid()->whereNotNull('checked_in_at')->count();
+
+            $tierStats = $product->variants->map(fn ($v) => [
+                'id'           => $v->id,
+                'name'         => $v->name,
+                'price'        => $v->price,
+                'stock'        => $v->stock,
+                'is_active'    => $v->is_active,
+                'tickets_sold' => $product->orders()
+                    ->paid()
+                    ->where('variant_id', $v->id)
+                    ->count(),
+            ]);
+
+            $ticketStats = [
+                'checked_in_count' => $checkedInCount,
+                'tier_stats'       => $tierStats,
+            ];
+        }
+
         $product->load(['productFiles', 'tags']);
 
         return ApiResponse::success([
@@ -113,6 +143,7 @@ class ProductStatsController extends Controller
             'affiliates'    => $affiliates,
             'recent_orders' => $recentOrders,
             'top_links'     => $topLinks,
+            'ticket_stats'  => $ticketStats,
         ]);
     }
 }

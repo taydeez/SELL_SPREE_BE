@@ -17,17 +17,17 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
-            Route::middleware(['api', ForceJsonResponse::class, 'cache.response'])
+            Route::middleware(['api', ForceJsonResponse::class])
                 ->prefix('api/v1/admin')
                 ->name('admin.')
                 ->group(base_path('routes/api/admin.php'));
 
-            Route::middleware(['api', ForceJsonResponse::class, 'cache.response'])
+            Route::middleware(['api', ForceJsonResponse::class])
                 ->prefix('api/v1/seller')
                 ->name('seller.')
                 ->group(base_path('routes/api/seller.php'));
 
-            Route::middleware(['api', ForceJsonResponse::class, 'cache.response'])
+            Route::middleware(['api', ForceJsonResponse::class])
                 ->prefix('api/v1/affiliate')
                 ->name('affiliate.')
                 ->group(base_path('routes/api/affiliate.php'));
@@ -44,7 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin'          => \App\Http\Middleware\AdminMiddleware::class,
             'seller'         => \App\Http\Middleware\SellerMiddleware::class,
             'affiliate'      => \App\Http\Middleware\AffiliateMiddleware::class,
-            'cache.response' => \App\Http\Middleware\CacheResponseMiddleware::class,
+           // 'cache.response' => \App\Http\Middleware\CacheResponseMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

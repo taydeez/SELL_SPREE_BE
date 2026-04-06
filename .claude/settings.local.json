@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell:*)",
+      "Bash(grep \"\\\\.php$\")",
+      "Bash(find . -path ./vendor -prune -o -name \"*.php\" -type f -exec grep -l \"Cache\\\\|cache\\\\|remember\" {} \\\\;)",
+      "Bash(grep -l \"default\" \"C:\\\\Users\\\\USER\\\\PhpstormProjects\\\\SellSpree\\\\nuxt-app\\\\layouts\"/*.vue)",
+      "Bash(cat /c/Users/USER/PhpstormProjects/SellSpree/nuxt-app/plugins/*.js)",
+      "Bash(cat /c/Users/USER/PhpstormProjects/SellSpree/nuxt-app/plugins/*.ts)",
+      "Bash(php /c/Users/USER/PhpstormProjects/SellSpree/backend/artisan route:list --path=seller/products --method=POST)",
+      "Bash(php artisan:*)"
+    ]
+  }
+}
