@@ -8,8 +8,7 @@ use App\Domain\Affiliate\Actions\CreateAffiliateProfileAction;
 use App\Domain\Auth\Actions\CreateUserAction;
 use App\Enums\UserRole;
 use App\Events\Affiliate\AffiliateRegistered;
-use App\Models\Affiliate;
-use App\Models\User;
+use App\Http\Resources\Affiliate\AffiliateProfileResource;
 use Illuminate\Support\Facades\DB;
 
 class RegisterAffiliateUseCase
@@ -19,20 +18,16 @@ class RegisterAffiliateUseCase
         private readonly CreateAffiliateProfileAction $createProfile,
     ) {}
 
-    public function run(array $data): array
+    public function run(array $data): AffiliateProfileResource
     {
-        return DB::transaction(function () use ($data): array {
-            /** @var User $user */
-            $user = $this->createUser->run($data, UserRole::Affiliate);
-
-            $user->sendEmailVerificationNotification();
-
-            /** @var Affiliate $affiliate */
+        return DB::transaction(function () use ($data): AffiliateProfileResource {
+            $user      = $this->createUser->run($data, UserRole::Affiliate);
             $affiliate = $this->createProfile->run($user, $data);
 
+            $user->sendEmailVerificationNotification();
             AffiliateRegistered::dispatch($user, $affiliate);
 
-            return compact('user', 'affiliate');
+            return new AffiliateProfileResource($affiliate->load('user'));
         });
     }
 }

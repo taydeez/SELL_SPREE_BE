@@ -9,7 +9,6 @@ use App\Domain\Seller\UseCases\RegisterSellerUseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\RegisterSellerRequest;
 use App\Http\Resources\ApiResponse;
-use App\Http\Resources\Seller\SellerProfileResource;
 use Illuminate\Http\JsonResponse;
 
 class RegisterController extends Controller
@@ -18,11 +17,6 @@ class RegisterController extends Controller
 
     public function __invoke(RegisterSellerRequest $request): JsonResponse
     {
-        $result = $this->useCase->run($request->validated());
-
-        return ApiResponse::created(
-            new SellerProfileResource($result['seller']->load('user')),
-            AuthMessages::REGISTER_SUCCESS,
-        );
+        return ApiResponse::created($this->useCase->run($request->validated()), AuthMessages::REGISTER_SUCCESS);
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin\Seller;
 
-use App\Domain\Admin\Actions\ApproveSellerAction;
+use App\Domain\Admin\Actions\Seller\ApproveSellerAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ApiResponse;
 use App\Models\Seller;

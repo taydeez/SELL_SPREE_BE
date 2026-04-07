@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Domain\Admin\Actions\CreateAdminAction;
+use App\Domain\Admin\Actions\User\CreateAdminAction;
 use App\Domain\Affiliate\UseCases\RegisterAffiliateUseCase;
 use App\Domain\Seller\UseCases\RegisterSellerUseCase;
 use App\Events\Admin\AdminCreated;

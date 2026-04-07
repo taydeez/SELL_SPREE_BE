@@ -8,8 +8,7 @@ use App\Domain\Auth\Actions\CreateUserAction;
 use App\Domain\Seller\Actions\CreateSellerProfileAction;
 use App\Enums\UserRole;
 use App\Events\Seller\SellerRegistered;
-use App\Models\Seller;
-use App\Models\User;
+use App\Http\Resources\Seller\SellerProfileResource;
 use Illuminate\Support\Facades\DB;
 
 class RegisterSellerUseCase
@@ -19,20 +18,16 @@ class RegisterSellerUseCase
         private readonly CreateSellerProfileAction $createProfile,
     ) {}
 
-    public function run(array $data): array
+    public function run(array $data): SellerProfileResource
     {
-        return DB::transaction(function () use ($data): array {
-            /** @var User $user */
-            $user = $this->createUser->run($data, UserRole::Seller);
-
-            $user->sendEmailVerificationNotification();
-
-            /** @var Seller $seller */
+        return DB::transaction(function () use ($data): SellerProfileResource {
+            $user   = $this->createUser->run($data, UserRole::Seller);
             $seller = $this->createProfile->run($user, $data);
 
+            $user->sendEmailVerificationNotification();
             SellerRegistered::dispatch($user, $seller);
 
-            return compact('user', 'seller');
+            return new SellerProfileResource($seller->load('user'));
         });
     }
 }
