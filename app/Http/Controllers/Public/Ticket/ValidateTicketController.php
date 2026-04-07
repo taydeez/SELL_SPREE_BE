@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Public\Ticket;
 
 use App\Domain\Order\Actions\ValidateTicketAction;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\ApiResponse;
 use App\Http\Resources\Public\TicketValidationResource;
 use Illuminate\Http\JsonResponse;
 
-class ValidateTicketController
+class ValidateTicketController extends Controller
 {
     public function __construct(private readonly ValidateTicketAction $validateTicketAction) {}
 

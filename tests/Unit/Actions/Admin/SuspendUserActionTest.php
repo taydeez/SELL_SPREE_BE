@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Domain\Admin\Actions\SuspendUserAction;
-use App\Domain\Admin\Actions\UnsuspendUserAction;
+use App\Domain\Admin\Actions\User\SuspendUserAction;
+use App\Domain\Admin\Actions\User\UnsuspendUserAction;
 use App\Exceptions\BusinessException;
 use App\Models\User;
 

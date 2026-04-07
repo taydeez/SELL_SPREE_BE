@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Admin\Actions;
+namespace App\Domain\Admin\Actions\Affiliate;
 
 use App\Models\Affiliate;
 

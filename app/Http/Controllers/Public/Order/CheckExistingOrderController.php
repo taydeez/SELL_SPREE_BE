@@ -4,32 +4,19 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Public\Order;
 
-use App\Enums\OrderStatus;
+use App\Domain\Order\Actions\CheckExistingOrderAction;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Public\Order\CheckExistingOrderRequest;
 use App\Http\Resources\ApiResponse;
-use App\Models\Order;
-use App\Models\Product;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
-class CheckExistingOrderController
+class CheckExistingOrderController extends Controller
 {
-    public function __invoke(Request $request): JsonResponse
+    public function __construct(private readonly CheckExistingOrderAction $action) {}
+
+    public function __invoke(CheckExistingOrderRequest $request): JsonResponse
     {
-        $request->validate([
-            'email'        => ['required', 'email'],
-            'product_slug' => ['required', 'string'],
-        ]);
-
-        $product = Product::where('slug', $request->product_slug)->first();
-
-        if (!$product) {
-            return ApiResponse::error('Product not found.', null, 404);
-        }
-
-        $alreadyPaid = Order::where('product_id', $product->id)
-            ->where('buyer_email', $request->email)
-            ->where('status', OrderStatus::Paid)
-            ->exists();
+        $alreadyPaid = $this->action->run($request->email, $request->product_slug);
 
         return ApiResponse::success(['already_paid' => $alreadyPaid]);
     }

@@ -6,8 +6,8 @@ namespace App\Domain\Order\UseCases;
 
 use App\Domain\Order\Actions\CreateOrderAction;
 use App\Exceptions\BusinessException;
+use App\Http\Resources\Public\OrderResource;
 use App\Models\AffiliateLink;
-use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +18,7 @@ class CreateOrderUseCase
         private readonly CreateOrderAction $createOrderAction,
     ) {}
 
-    public function run(array $data): Order
+    public function run(array $data): OrderResource
     {
         return DB::transaction(function () use ($data) {
             $product = Product::where('slug', $data['product_slug'])->firstOrFail();
@@ -35,8 +35,8 @@ class CreateOrderUseCase
                 }
             }
 
-            $price   = $product->price;
-            $variantId   = null;
+            $price        = $product->price;
+            $variantId    = null;
             $attendeeName = null;
 
             if ($product->isTicket()) {
@@ -68,7 +68,7 @@ class CreateOrderUseCase
             $platformFee        = (int) round($price * $platformFeePercent / 100);
             $sellerEarnings     = $price - $platformFee - $affiliateEarnings;
 
-            return $this->createOrderAction->run([
+            $order = $this->createOrderAction->run([
                 'buyer_email'        => $data['buyer_email'],
                 'product_id'         => $product->id,
                 'variant_id'         => $variantId,
@@ -80,6 +80,8 @@ class CreateOrderUseCase
                 'seller_earnings'    => $sellerEarnings,
                 'affiliate_earnings' => $affiliateEarnings,
             ]);
+
+            return new OrderResource($order);
         });
     }
 }

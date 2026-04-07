@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Admin\Actions;
+namespace App\Domain\Admin\Actions\Payment;
 
 use App\Models\PaymentConfig;
 

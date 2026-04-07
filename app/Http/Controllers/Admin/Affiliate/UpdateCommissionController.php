@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin\Affiliate;
 
-use App\Domain\Admin\Actions\UpdateAffiliateCommissionAction;
+use App\Domain\Admin\Actions\Affiliate\UpdateAffiliateCommissionAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateAffiliateCommissionRequest;
 use App\Http\Resources\ApiResponse;

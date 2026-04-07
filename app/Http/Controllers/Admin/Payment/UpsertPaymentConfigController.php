@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin\Payment;
 
-use App\Domain\Admin\Actions\UpsertPaymentConfigAction;
+use App\Domain\Admin\Actions\Payment\UpsertPaymentConfigAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpsertPaymentConfigRequest;
 use App\Http\Resources\Admin\PaymentConfigResource;
