@@ -12,7 +12,7 @@ class ValidateUserRoleAction
 {
     public function run(User $user, UserRole $expectedRole): void
     {
-        if ($user->role !== $expectedRole) {
+        if (! in_array($expectedRole->value, $user->roles ?? [])) {
             throw BusinessException::forbidden();
         }
 

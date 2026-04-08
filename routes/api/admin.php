@@ -30,6 +30,18 @@ use App\Http\Controllers\Admin\Seller\SuspendSellerController;
 use App\Http\Controllers\Admin\Seller\UnsuspendSellerController;
 use App\Http\Controllers\Admin\Account\UpdatePasswordController;
 use App\Http\Controllers\Admin\Account\UpdateProfileController;
+use App\Http\Controllers\Admin\User\AssignAdminRoleController;
+use App\Http\Controllers\Admin\User\CreateAdminUserController;
+use App\Http\Controllers\Admin\User\DeleteAdminUserController;
+use App\Http\Controllers\Admin\User\ListAdminUsersController;
+use App\Http\Controllers\Admin\User\SetAdminPasswordController;
+use App\Http\Controllers\Admin\User\SuspendAdminUserController;
+use App\Http\Controllers\Admin\User\UnsuspendAdminUserController;
+use App\Http\Controllers\Admin\Role\CreateRoleController;
+use App\Http\Controllers\Admin\Role\DeleteRoleController;
+use App\Http\Controllers\Admin\Role\ListPermissionsController;
+use App\Http\Controllers\Admin\Role\ListRolesController;
+use App\Http\Controllers\Admin\Role\SyncRolePermissionsController;
 use App\Http\Controllers\Auth\Admin\CurrentUserController;
 use App\Http\Controllers\Auth\Admin\LoginController;
 use App\Http\Controllers\Auth\Admin\LogoutController;
@@ -81,11 +93,39 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('transactions/{transaction}', ShowTransactionController::class);
 
     // Payment configs
-    Route::get('payment-configs', ListPaymentConfigsController::class);
-    Route::post('payment-configs', UpsertPaymentConfigController::class);
-    Route::patch('payment-configs/{provider}/activate', ActivateProviderController::class);
+    Route::middleware('permission:edit_settings')->group(function () {
+        Route::get('payment-configs', ListPaymentConfigsController::class);
+        Route::post('payment-configs', UpsertPaymentConfigController::class);
+        Route::patch('payment-configs/{provider}/activate', ActivateProviderController::class);
+    });
 
-    // Account settings
+    // Account settings (no permission needed — always self)
     Route::patch('account/profile', UpdateProfileController::class);
     Route::patch('account/password', UpdatePasswordController::class);
+
+    // Admin users
+    Route::middleware('permission:view_users')->group(function () {
+        Route::get('users', ListAdminUsersController::class);
+    });
+    Route::middleware('permission:create_users')->group(function () {
+        Route::post('users', CreateAdminUserController::class);
+    });
+    Route::middleware('permission:delete_users')->group(function () {
+        Route::delete('users/{admin}', DeleteAdminUserController::class);
+    });
+    Route::middleware('permission:edit_users')->group(function () {
+        Route::patch('users/{admin}/suspend', SuspendAdminUserController::class);
+        Route::patch('users/{admin}/unsuspend', UnsuspendAdminUserController::class);
+        Route::patch('users/{admin}/password', SetAdminPasswordController::class);
+        Route::patch('users/{admin}/role', AssignAdminRoleController::class);
+    });
+
+    // Roles & permissions
+    Route::middleware('permission:manage_roles')->group(function () {
+        Route::get('roles', ListRolesController::class);
+        Route::post('roles', CreateRoleController::class);
+        Route::delete('roles/{role}', DeleteRoleController::class);
+        Route::put('roles/{role}/permissions', SyncRolePermissionsController::class);
+        Route::get('permissions', ListPermissionsController::class);
+    });
 });

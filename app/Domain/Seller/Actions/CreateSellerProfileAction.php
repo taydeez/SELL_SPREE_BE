@@ -11,13 +11,15 @@ class CreateSellerProfileAction
 {
     public function run(User $user, array $data): Seller
     {
-        return Seller::create([
-            'user_id'         => $user->id,
-            'store_name'      => $data['store_name'],
-            'bio'             => $data['bio'] ?? null,
-            'payout_email'    => $data['payout_email'] ?? $user->email,
-            'commission_rate' => 0,
-            'is_approved'     => false,
-        ]);
+        return Seller::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'store_name'      => $data['store_name'] ?? $user->name . "'s Store",
+                'bio'             => $data['bio'] ?? null,
+                'payout_email'    => $data['payout_email'] ?? $user->email,
+                'commission_rate' => 0,
+                'is_approved'     => false,
+            ]
+        );
     }
 }

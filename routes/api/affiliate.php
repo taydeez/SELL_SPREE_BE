@@ -18,6 +18,7 @@ use App\Http\Controllers\Auth\Affiliate\LoginController;
 use App\Http\Controllers\Auth\Affiliate\LogoutController;
 use App\Http\Controllers\Auth\Affiliate\RefreshTokenController;
 use App\Http\Controllers\Auth\Affiliate\RegisterController;
+use App\Http\Controllers\Auth\User\SwitchRoleController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Auth (public) ───────────────────────────────────────────────────────────
@@ -29,6 +30,7 @@ Route::middleware('auth:affiliate')->group(function () {
     Route::post('auth/logout', LogoutController::class);
     Route::post('auth/refresh', RefreshTokenController::class);
     Route::get('auth/me', CurrentUserController::class);
+    Route::post('auth/switch-role', SwitchRoleController::class);
 
     // Dashboard
     Route::get('dashboard/stats', GetStatsController::class);

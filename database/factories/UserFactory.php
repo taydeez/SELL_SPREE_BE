@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -25,26 +24,36 @@ class UserFactory extends Factory
             'name'              => fake()->name(),
             'email'             => fake()->unique()->safeEmail(),
             'password'          => static::$password ??= Hash::make('password'),
-            'role'              => UserRole::Seller->value,
+            'active_role'       => 'seller',
+            'roles'             => ['seller', 'affiliate', 'customer'],
             'email_verified_at' => now(),
             'is_suspended'      => false,
             'remember_token'    => Str::random(10),
         ];
     }
 
-    public function admin(): static
-    {
-        return $this->state(['role' => UserRole::Admin->value]);
-    }
-
     public function seller(): static
     {
-        return $this->state(['role' => UserRole::Seller->value]);
+        return $this->state([
+            'active_role' => 'seller',
+            'roles'       => ['seller', 'affiliate', 'customer'],
+        ]);
     }
 
     public function affiliate(): static
     {
-        return $this->state(['role' => UserRole::Affiliate->value]);
+        return $this->state([
+            'active_role' => 'affiliate',
+            'roles'       => ['seller', 'affiliate', 'customer'],
+        ]);
+    }
+
+    public function customer(): static
+    {
+        return $this->state([
+            'active_role' => 'customer',
+            'roles'       => ['seller', 'affiliate', 'customer'],
+        ]);
     }
 
     public function suspended(): static

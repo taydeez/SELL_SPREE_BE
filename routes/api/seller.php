@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\Seller\LoginController;
 use App\Http\Controllers\Auth\Seller\LogoutController;
 use App\Http\Controllers\Auth\Seller\RefreshTokenController;
 use App\Http\Controllers\Auth\Seller\RegisterController;
+use App\Http\Controllers\Auth\User\SwitchRoleController;
 use App\Http\Controllers\Seller\Dashboard\GetStatsController;
 use App\Http\Controllers\Seller\Order\ListOrdersController;
 use App\Http\Controllers\Seller\Order\ShowOrderController;
@@ -41,6 +42,7 @@ Route::middleware('auth:seller')->group(function () {
     Route::post('auth/logout', LogoutController::class);
     Route::post('auth/refresh', RefreshTokenController::class);
     Route::get('auth/me', CurrentUserController::class);
+    Route::post('auth/switch-role', SwitchRoleController::class);
 
     // Dashboard
     Route::get('dashboard/stats', GetStatsController::class);
