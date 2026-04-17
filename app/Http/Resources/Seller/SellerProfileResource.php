@@ -13,6 +13,7 @@ class SellerProfileResource extends JsonResource
     {
         return [
             'id'               => $this->id,
+            'profile_complete' => ! empty($this->store_name),
             'store_name'       => $this->store_name,
             'store_slug'       => $this->store_slug,
             'bio'              => $this->bio,
@@ -20,6 +21,13 @@ class SellerProfileResource extends JsonResource
             'commission_rate'  => $this->commission_rate,
             'is_approved'      => $this->is_approved,
             'avatar_url'       => $this->getFirstMediaUrl('avatar'),
+            'bank_account'     => $this->flw_subaccount_id ? [
+                'bank_code'         => $this->bank_code,
+                'bank_name'         => $this->bank_name,
+                'account_number'    => $this->account_number,
+                'account_name'      => $this->account_name,
+                'flw_subaccount_id' => $this->flw_subaccount_id,
+            ] : null,
             'user'             => [
                 'id'                => $this->user?->id,
                 'name'              => $this->user?->name,

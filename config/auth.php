@@ -57,6 +57,11 @@ return [
             'driver' => 'jwt',
             'provider' => 'affiliates',
         ],
+
+        'customer' => [
+            'driver' => 'jwt',
+            'provider' => 'customers',
+        ],
     ],
 
     /*
@@ -84,7 +89,7 @@ return [
 
         'admins' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => App\Models\Admin::class,
         ],
 
         'sellers' => [
@@ -93,6 +98,11 @@ return [
         ],
 
         'affiliates' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+
+        'customers' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],

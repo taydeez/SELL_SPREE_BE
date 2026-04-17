@@ -12,7 +12,7 @@ class UpdateVariantRequest extends FormRequest
     {
         return [
             'name'      => ['sometimes', 'string', 'max:100'],
-            'price'     => ['sometimes', 'integer', 'min:0'],
+            'price'     => ['sometimes', 'integer', 'min:0', 'multiple_of:100'],
             'stock'     => ['sometimes', 'nullable', 'integer', 'min:0'],
             'is_active' => ['sometimes', 'boolean'],
         ];

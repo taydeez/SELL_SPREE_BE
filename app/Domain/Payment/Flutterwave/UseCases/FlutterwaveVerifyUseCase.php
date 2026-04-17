@@ -10,6 +10,7 @@ namespace App\Domain\Payment\Flutterwave\UseCases;
 use App\Domain\Order\Events\OrderPaidEvent;
 use App\Domain\Payment\Flutterwave\Actions\GetFlutterwaveTransactionByRefAction;
 use App\Domain\Payment\Flutterwave\Actions\UpdateFlutterwaveTransactionAction;
+use App\Domain\Shared\Actions\CreateAppLogAction;
 use App\Services\FlutterwaveService;
 class FlutterwaveVerifyUseCase{
 
@@ -17,6 +18,7 @@ class FlutterwaveVerifyUseCase{
         private readonly FlutterwaveService $flutterwave,
         private readonly GetFlutterwaveTransactionByRefAction $getTransactionByRefAction,
         private readonly UpdateFlutterwaveTransactionAction $updateTransactionAction,
+        private readonly CreateAppLogAction $log,
     )
     {
     }
@@ -33,15 +35,37 @@ class FlutterwaveVerifyUseCase{
             }
 
             $verificationData = $verification['data'];
-            $transaction      = $this->getTransactionByRefAction->run($data['tx_ref']);
+            $transaction = $this->getTransactionByRefAction->run($data['tx_ref']);
 
             if (!$transaction) {
+                $this->log->run('warning', 'PAYMENT_TX_NOT_FOUND', 'Transaction record not found during verification.', [
+                    'tx_ref'         => $data['tx_ref'] ?? null,
+                    'transaction_id' => $data['transaction_id'] ?? null,
+                ]);
                 throw new \RuntimeException('Transaction record not found');
             }
 
+            // Idempotency: already processed — return success without re-firing event
+            if ($transaction->status === 'successful') {
+                return [
+                    'status'  => 'success',
+                    'message' => 'Payment already verified.',
+                    'data'    => [
+                        'tx_ref'         => $transaction->tx_ref,
+                        'amount'         => $transaction->amount,
+                        'currency'       => $transaction->currency,
+                        'transaction_id' => $data['transaction_id'],
+                    ],
+                ];
+            }
+
+            // Flutterwave returns amount in naira; transaction stores cents
+            $paidNaira     = (float) ($verificationData['amount'] ?? 0);
+            $expectedNaira = $transaction->amount / 100;
+
             if (
                 $verificationData['status'] === 'successful' &&
-                $verificationData['amount'] >= $transaction->amount &&
+                $paidNaira >= $expectedNaira &&
                 $verificationData['currency'] === $transaction->currency
             ) {
                 $this->updateTransactionAction->run([
@@ -51,6 +75,12 @@ class FlutterwaveVerifyUseCase{
                 ], $transaction);
 
                 $transaction->refresh();
+
+                $this->log->run('info', 'PAYMENT_VERIFIED', 'Flutterwave payment verified successfully.', [
+                    'tx_ref'         => $transaction->tx_ref,
+                    'transaction_id' => $data['transaction_id'],
+                    'amount'         => $transaction->amount,
+                ]);
 
                 event(new OrderPaidEvent($transaction));
 
@@ -68,9 +98,23 @@ class FlutterwaveVerifyUseCase{
 
             $this->updateTransactionAction->run(['status' => 'failed'], $transaction);
 
+            $this->log->run('warning', 'PAYMENT_AMOUNT_MISMATCH', 'Payment verification failed: amount or currency mismatch.', [
+                'tx_ref'            => $transaction->tx_ref,
+                'transaction_id'    => $data['transaction_id'] ?? null,
+                'expected_naira'    => $expectedNaira,
+                'received_naira'    => $paidNaira,
+                'expected_currency' => $transaction->currency,
+                'received_currency' => $verificationData['currency'] ?? null,
+            ]);
+
             throw new \RuntimeException('Currency or amount mismatch');
 
         } catch (\Exception $e) {
+            $this->log->run('error', 'PAYMENT_VERIFY_FAILED', $e->getMessage(), [
+                'tx_ref'         => $data['tx_ref'] ?? null,
+                'transaction_id' => $data['transaction_id'] ?? null,
+                'exception'      => get_class($e),
+            ]);
             if ($transaction) {
                 $this->updateTransactionAction->run(['status' => 'failed'], $transaction);
             }

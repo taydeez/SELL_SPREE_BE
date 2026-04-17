@@ -28,6 +28,11 @@ class Seller extends Model implements HasMedia
         'payout_email',
         'commission_rate',
         'is_approved',
+        'bank_code',
+        'bank_name',
+        'account_number',
+        'account_name',
+        'flw_subaccount_id',
     ];
 
     protected function casts(): array

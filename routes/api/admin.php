@@ -3,11 +3,14 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Admin\Affiliate\DeleteAffiliateController;
+use App\Http\Controllers\Admin\Affiliate\GetAffiliateStatsController;
 use App\Http\Controllers\Admin\Affiliate\ListAffiliatesController;
+use App\Http\Controllers\Admin\Affiliate\ListWithdrawalsController;
+use App\Http\Controllers\Admin\Affiliate\ProcessPayoutController;
 use App\Http\Controllers\Admin\Affiliate\ShowAffiliateController;
 use App\Http\Controllers\Admin\Affiliate\SuspendAffiliateController;
 use App\Http\Controllers\Admin\Affiliate\UnsuspendAffiliateController;
-use App\Http\Controllers\Admin\Affiliate\UpdateCommissionController;
+use App\Http\Controllers\Admin\Affiliate\VerifyPayoutController;
 use App\Http\Controllers\Admin\Dashboard\GetStatsController;
 use App\Http\Controllers\Admin\Dashboard\GetTractionController;
 use App\Http\Controllers\Admin\Order\ListOrdersController;
@@ -30,6 +33,19 @@ use App\Http\Controllers\Admin\Seller\SuspendSellerController;
 use App\Http\Controllers\Admin\Seller\UnsuspendSellerController;
 use App\Http\Controllers\Admin\Account\UpdatePasswordController;
 use App\Http\Controllers\Admin\Account\UpdateProfileController;
+use App\Http\Controllers\Admin\User\AssignAdminRoleController;
+use App\Http\Controllers\Admin\User\CreateAdminUserController;
+use App\Http\Controllers\Admin\User\DeleteAdminUserController;
+use App\Http\Controllers\Admin\User\ListAdminUsersController;
+use App\Http\Controllers\Admin\User\SetAdminPasswordController;
+use App\Http\Controllers\Admin\User\SuspendAdminUserController;
+use App\Http\Controllers\Admin\User\UnsuspendAdminUserController;
+use App\Http\Controllers\Admin\Role\CreateRoleController;
+use App\Http\Controllers\Admin\Role\DeleteRoleController;
+use App\Http\Controllers\Admin\Role\ListPermissionsController;
+use App\Http\Controllers\Admin\Role\ListRolesController;
+use App\Http\Controllers\Admin\Role\SyncRolePermissionsController;
+use App\Http\Controllers\Admin\Logs\ListLogsController;
 use App\Http\Controllers\Auth\Admin\CurrentUserController;
 use App\Http\Controllers\Auth\Admin\LoginController;
 use App\Http\Controllers\Auth\Admin\LogoutController;
@@ -58,12 +74,17 @@ Route::middleware('auth:admin')->group(function () {
     Route::delete('sellers/{seller}', DeleteSellerController::class);
 
     // Affiliates
+    Route::get('affiliates/stats', GetAffiliateStatsController::class);
     Route::get('affiliates', ListAffiliatesController::class);
     Route::get('affiliates/{affiliate}', ShowAffiliateController::class);
-    Route::patch('affiliates/{affiliate}/commission', UpdateCommissionController::class);
     Route::patch('affiliates/{affiliate}/suspend', SuspendAffiliateController::class);
     Route::patch('affiliates/{affiliate}/unsuspend', UnsuspendAffiliateController::class);
     Route::delete('affiliates/{affiliate}', DeleteAffiliateController::class);
+
+    // Affiliate withdrawals / payouts
+    Route::get('affiliate-withdrawals', ListWithdrawalsController::class);
+    Route::post('affiliate-withdrawals/{withdrawal}/process', ProcessPayoutController::class);
+    Route::post('affiliate-withdrawals/{withdrawal}/verify', VerifyPayoutController::class);
 
     // Products
     Route::get('products', ListProductsController::class);
@@ -81,11 +102,42 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('transactions/{transaction}', ShowTransactionController::class);
 
     // Payment configs
-    Route::get('payment-configs', ListPaymentConfigsController::class);
-    Route::post('payment-configs', UpsertPaymentConfigController::class);
-    Route::patch('payment-configs/{provider}/activate', ActivateProviderController::class);
+    Route::middleware('permission:edit_settings')->group(function () {
+        Route::get('payment-configs', ListPaymentConfigsController::class);
+        Route::post('payment-configs', UpsertPaymentConfigController::class);
+        Route::patch('payment-configs/{provider}/activate', ActivateProviderController::class);
+    });
 
-    // Account settings
+    // Account settings (no permission needed — always self)
     Route::patch('account/profile', UpdateProfileController::class);
     Route::patch('account/password', UpdatePasswordController::class);
+
+    // Admin users
+    Route::middleware('permission:view_users')->group(function () {
+        Route::get('users', ListAdminUsersController::class);
+    });
+    Route::middleware('permission:create_users')->group(function () {
+        Route::post('users', CreateAdminUserController::class);
+    });
+    Route::middleware('permission:delete_users')->group(function () {
+        Route::delete('users/{admin}', DeleteAdminUserController::class);
+    });
+    Route::middleware('permission:edit_users')->group(function () {
+        Route::patch('users/{admin}/suspend', SuspendAdminUserController::class);
+        Route::patch('users/{admin}/unsuspend', UnsuspendAdminUserController::class);
+        Route::patch('users/{admin}/password', SetAdminPasswordController::class);
+        Route::patch('users/{admin}/role', AssignAdminRoleController::class);
+    });
+
+    // Developer logs
+    Route::get('logs', ListLogsController::class);
+
+    // Roles & permissions
+    Route::middleware('permission:manage_roles')->group(function () {
+        Route::get('roles', ListRolesController::class);
+        Route::post('roles', CreateRoleController::class);
+        Route::delete('roles/{role}', DeleteRoleController::class);
+        Route::put('roles/{role}/permissions', SyncRolePermissionsController::class);
+        Route::get('permissions', ListPermissionsController::class);
+    });
 });

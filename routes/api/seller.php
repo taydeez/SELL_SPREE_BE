@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\Seller\LoginController;
 use App\Http\Controllers\Auth\Seller\LogoutController;
 use App\Http\Controllers\Auth\Seller\RefreshTokenController;
 use App\Http\Controllers\Auth\Seller\RegisterController;
+use App\Http\Controllers\Auth\User\SwitchRoleController;
 use App\Http\Controllers\Seller\Dashboard\GetStatsController;
 use App\Http\Controllers\Seller\Order\ListOrdersController;
 use App\Http\Controllers\Seller\Order\ShowOrderController;
@@ -23,6 +24,8 @@ use App\Http\Controllers\Seller\Product\GeneratePresignedUrlController;
 use App\Http\Controllers\Seller\Product\UploadCoverController;
 use App\Http\Controllers\Seller\Product\UploadFileController;
 use App\Http\Controllers\Seller\Settings\DeleteAccountController;
+use App\Http\Controllers\Seller\Settings\GetBanksController;
+use App\Http\Controllers\Seller\Settings\SaveBankAccountController;
 use App\Http\Controllers\Seller\Settings\UpdatePasswordController;
 use App\Http\Controllers\Seller\Settings\UpdateProfileController;
 use App\Http\Controllers\Seller\Event\CheckInAttendeeController;
@@ -41,6 +44,7 @@ Route::middleware('auth:seller')->group(function () {
     Route::post('auth/logout', LogoutController::class);
     Route::post('auth/refresh', RefreshTokenController::class);
     Route::get('auth/me', CurrentUserController::class);
+    Route::post('auth/switch-role', SwitchRoleController::class);
 
     // Dashboard
     Route::get('dashboard/stats', GetStatsController::class);
@@ -78,4 +82,6 @@ Route::middleware('auth:seller')->group(function () {
     Route::patch('settings/profile', UpdateProfileController::class);
     Route::patch('settings/password', UpdatePasswordController::class);
     Route::delete('settings/account', DeleteAccountController::class);
+    Route::get('settings/banks', GetBanksController::class);
+    Route::post('settings/bank-account', SaveBankAccountController::class);
 });

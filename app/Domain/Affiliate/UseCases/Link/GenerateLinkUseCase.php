@@ -19,7 +19,7 @@ class GenerateLinkUseCase
     public function run(int|string $userId, string $productId): AffiliateLinkResource
     {
         $affiliate = $this->resolveAffiliate->run($userId);
-        $product   = Product::findOrFail($productId);
+        $product   = Product::with('seller')->findOrFail($productId);
 
         return new AffiliateLinkResource(
             $this->generateLink->run($affiliate, $product)->load('product')

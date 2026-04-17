@@ -16,12 +16,16 @@ class CreateProductRequest extends FormRequest
         $isTicket = $this->input('type') === ProductType::Ticket->value;
 
         return [
-            'title'       => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:5000'],
-            'type'        => ['required', new Enum(ProductType::class)],
-            'price'       => ['required', 'integer', 'min:0'],
-            'tags'        => ['nullable', 'array', 'max:10'],
-            'tags.*'      => ['string', 'min:2', 'max:50'],
+            'title'              => ['required', 'string', 'max:255'],
+            'description'        => ['nullable', 'string', 'max:5000'],
+            'type'               => ['required', new Enum(ProductType::class)],
+            'price'              => ['required', 'integer', 'min:0', 'multiple_of:100'],
+            'affiliate_enabled'         => ['nullable', 'boolean'],
+            'affiliate_commission_rate' => $this->boolean('affiliate_enabled')
+                ? ['required', 'integer', 'min:10', 'max:50']
+                : ['nullable', 'integer', 'min:10', 'max:50'],
+            'tags'                      => ['nullable', 'array', 'max:10'],
+            'tags.*'             => ['string', 'min:2', 'max:50'],
 
             'event_type'          => $isTicket ? ['required', new Enum(EventType::class)] : ['nullable'],
             'event_date'          => $isTicket ? ['required', 'date', 'after:now'] : ['nullable'],
@@ -40,7 +44,7 @@ class CreateProductRequest extends FormRequest
 
             'variants'            => ['nullable', 'array'],
             'variants.*.name'     => ['required_with:variants', 'string', 'max:100'],
-            'variants.*.price'    => ['required_with:variants', 'integer', 'min:0'],
+            'variants.*.price'    => ['required_with:variants', 'integer', 'min:0', 'multiple_of:100'],
             'variants.*.stock'    => ['nullable', 'integer', 'min:0'],
         ];
     }

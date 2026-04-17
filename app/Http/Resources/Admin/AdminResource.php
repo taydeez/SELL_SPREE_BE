@@ -12,13 +12,13 @@ class AdminResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                => $this->id,
-            'name'              => $this->name,
-            'email'             => $this->email,
-            'role'              => $this->role?->value,
-            'email_verified_at' => $this->email_verified_at,
-            'is_suspended'      => $this->is_suspended,
-            'created_at'        => $this->created_at,
+            'id'          => $this->id,
+            'name'        => $this->name,
+            'email'       => $this->email,
+            'is_active'   => $this->is_active,
+            'roles'       => $this->getRoleNames(),
+            'permissions' => $this->getAllPermissions()->pluck('name'),
+            'created_at'  => $this->created_at,
         ];
     }
 }

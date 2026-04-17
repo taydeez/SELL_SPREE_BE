@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,7 +16,17 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->configureSuperAdminGate();
         $this->configureRateLimiters();
+    }
+
+    private function configureSuperAdminGate(): void
+    {
+        Gate::before(function ($user, string $ability) {
+            if (method_exists($user, 'hasRole') && $user->hasRole('super-admin')) {
+                return true;
+            }
+        });
     }
 
     private function configureRateLimiters(): void

@@ -9,11 +9,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class GetAffiliateEarningsAction
 {
-    public function run(Affiliate $affiliate, ?bool $paid): LengthAwarePaginator
+    public function run(Affiliate $affiliate, ?string $status): LengthAwarePaginator
     {
         return $affiliate->sales()
             ->with(['order', 'affiliateLink.product'])
-            ->when($paid !== null, fn ($q) => $q->where('is_paid', $paid))
+            ->when($status, fn ($q) => $q->where('status', $status))
             ->latest()
             ->paginate(20);
     }

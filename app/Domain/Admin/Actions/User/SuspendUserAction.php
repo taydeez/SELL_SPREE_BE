@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domain\Admin\Actions\User;
 
+use App\Domain\Shared\Actions\CreateAppLogAction;
 use App\Exceptions\BusinessException;
 use App\Models\User;
 
 class SuspendUserAction
 {
+    public function __construct(private readonly CreateAppLogAction $log) {}
+
     public function run(User $user): void
     {
         if ($user->is_suspended) {
@@ -16,5 +19,10 @@ class SuspendUserAction
         }
 
         $user->update(['is_suspended' => true]);
+
+        $this->log->run('warning', 'USER_SUSPENDED', "User \"{$user->email}\" was suspended.", [
+            'user_id' => $user->id,
+            'email'   => $user->email,
+        ]);
     }
 }

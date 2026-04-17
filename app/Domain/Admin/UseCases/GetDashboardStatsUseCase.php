@@ -12,18 +12,22 @@ class GetDashboardStatsUseCase
 {
     public function run(): array
     {
-        $totalRevenue    = Order::paid()->sum('amount');
-        $platformFees    = Order::paid()->sum('platform_fee');
-        $completedOrders = Order::paid()->count();
-        $refundedOrders  = Order::refunded()->count();
-        $totalSellers    = Seller::count();
-        $approvedSellers = Seller::approved()->count();
-        $totalAffiliates = Affiliate::count();
+        $totalRevenue      = Order::paid()->sum('amount');
+        $platformFees      = Order::paid()->sum('platform_fee');
+        $sellerEarnings    = Order::paid()->sum('seller_earnings');
+        $affiliateEarnings = Order::paid()->sum('affiliate_earnings');
+        $completedOrders   = Order::paid()->count();
+        $refundedOrders    = Order::refunded()->count();
+        $totalSellers      = Seller::count();
+        $approvedSellers   = Seller::approved()->count();
+        $totalAffiliates   = Affiliate::count();
 
         return [
             'revenue' => [
-                'total'         => $totalRevenue,
-                'platform_fees' => $platformFees,
+                'total'              => $totalRevenue,
+                'platform_fees'      => $platformFees,
+                'seller_earnings'    => $sellerEarnings,
+                'affiliate_earnings' => $affiliateEarnings,
             ],
             'orders' => [
                 'completed' => $completedOrders,
