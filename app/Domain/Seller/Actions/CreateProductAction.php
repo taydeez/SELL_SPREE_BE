@@ -23,12 +23,16 @@ class CreateProductAction
     {
         return DB::transaction(function () use ($seller, $data) {
             $product = Product::create([
-                'seller_id'   => $seller->id,
-                'title'       => $data['title'],
-                'description' => $data['description'] ?? null,
-                'type'        => $data['type'],
-                'price'       => $data['price'],
-                'status'      => ProductStatus::Draft,
+                'seller_id'         => $seller->id,
+                'title'             => $data['title'],
+                'description'       => $data['description'] ?? null,
+                'type'              => $data['type'],
+                'price'             => $data['price'],
+                'status'                   => ProductStatus::Draft,
+                'affiliate_enabled'        => $data['affiliate_enabled'] ?? true,
+                'affiliate_commission_rate' => ($data['affiliate_enabled'] ?? true)
+                    ? ($data['affiliate_commission_rate'] ?? null)
+                    : null,
             ]);
 
             if (!empty($data['tags'])) {

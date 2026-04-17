@@ -16,8 +16,8 @@ class GetAffiliateDashboardStatsAction
         $totalSales       = $affiliate->links()->sum('sales_count');
         $totalEarned      = $affiliate->links()->sum('total_earned');
 
-        $pendingEarnings  = $affiliate->sales()->where('is_paid', false)->sum('commission_amount');
-        $paidEarnings     = $affiliate->sales()->where('is_paid', true)->sum('commission_amount');
+        $pendingEarnings  = $affiliate->sales()->whereIn('status', ['pending', 'available'])->sum('commission_amount');
+        $paidEarnings     = $affiliate->sales()->where('status', 'settled')->sum('commission_amount');
 
         return [
             'total_links'      => $totalLinks,

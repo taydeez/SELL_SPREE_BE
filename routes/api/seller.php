@@ -24,6 +24,8 @@ use App\Http\Controllers\Seller\Product\GeneratePresignedUrlController;
 use App\Http\Controllers\Seller\Product\UploadCoverController;
 use App\Http\Controllers\Seller\Product\UploadFileController;
 use App\Http\Controllers\Seller\Settings\DeleteAccountController;
+use App\Http\Controllers\Seller\Settings\GetBanksController;
+use App\Http\Controllers\Seller\Settings\SaveBankAccountController;
 use App\Http\Controllers\Seller\Settings\UpdatePasswordController;
 use App\Http\Controllers\Seller\Settings\UpdateProfileController;
 use App\Http\Controllers\Seller\Event\CheckInAttendeeController;
@@ -80,4 +82,6 @@ Route::middleware('auth:seller')->group(function () {
     Route::patch('settings/profile', UpdateProfileController::class);
     Route::patch('settings/password', UpdatePasswordController::class);
     Route::delete('settings/account', DeleteAccountController::class);
+    Route::get('settings/banks', GetBanksController::class);
+    Route::post('settings/bank-account', SaveBankAccountController::class);
 });

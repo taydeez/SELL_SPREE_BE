@@ -18,11 +18,23 @@ class UpdateProductAction
             throw BusinessException::invalidOperation('Suspended products cannot be edited.');
         }
 
-        $product->update(array_filter([
+        $updates = array_filter([
             'title'       => $data['title'] ?? null,
             'description' => $data['description'] ?? null,
             'price'       => $data['price'] ?? null,
-        ], fn ($v) => $v !== null));
+        ], fn ($v) => $v !== null);
+
+        if (array_key_exists('affiliate_enabled', $data)) {
+            $affiliateEnabled                  = (bool) $data['affiliate_enabled'];
+            $updates['affiliate_enabled']      = $affiliateEnabled;
+            $updates['affiliate_commission_rate'] = $affiliateEnabled
+                ? ($data['affiliate_commission_rate'] ?? $product->affiliate_commission_rate)
+                : null;
+        } elseif (array_key_exists('affiliate_commission_rate', $data)) {
+            $updates['affiliate_commission_rate'] = $data['affiliate_commission_rate'];
+        }
+
+        $product->update($updates);
 
         if (array_key_exists('tags', $data)) {
             $tagIds = collect($data['tags'] ?? [])->map(fn ($name) => Tag::firstOrCreate(

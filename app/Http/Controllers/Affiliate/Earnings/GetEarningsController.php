@@ -17,6 +17,6 @@ class GetEarningsController extends Controller
 
     public function __invoke(Request $request): JsonResponse
     {
-        return ApiResponse::success($this->useCase->run(Auth::guard('affiliate')->id(), $request->only(['paid'])));
+        return ApiResponse::success($this->useCase->run(Auth::guard('affiliate')->id(), $request->only(['status'])));
     }
 }

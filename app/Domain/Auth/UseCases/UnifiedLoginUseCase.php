@@ -7,6 +7,7 @@ namespace App\Domain\Auth\UseCases;
 use App\Domain\Auth\Actions\AuthenticateUserAction;
 use App\Domain\Auth\Actions\ResolveAffiliateProfileAction;
 use App\Domain\Auth\Actions\ResolveSellerProfileAction;
+use App\Domain\Shared\Actions\CreateAppLogAction;
 use App\Exceptions\BusinessException;
 use App\Http\Resources\Affiliate\AffiliateProfileResource;
 use App\Http\Resources\Seller\SellerProfileResource;
@@ -19,6 +20,7 @@ class UnifiedLoginUseCase
         private readonly AuthenticateUserAction $authenticate,
         private readonly ResolveSellerProfileAction $resolveSeller,
         private readonly ResolveAffiliateProfileAction $resolveAffiliate,
+        private readonly CreateAppLogAction $log,
     ) {}
 
     public function run(string $email, string $password): array
@@ -26,16 +28,19 @@ class UnifiedLoginUseCase
         $user = User::where('email', $email)->first();
 
         if (! $user) {
+            $this->log->run('warning', 'LOGIN_FAILED', 'Login attempted with unknown email.', ['email' => $email]);
             throw BusinessException::invalidCredentials();
         }
 
         if ($user->is_suspended) {
+            $this->log->run('warning', 'LOGIN_FAILED', 'Suspended user attempted login.', ['email' => $email, 'user_id' => $user->id]);
             throw BusinessException::suspended();
         }
 
         $portal = $user->active_role;
 
         if (! $portal || ! in_array($portal, ['seller', 'affiliate', 'customer'])) {
+            $this->log->run('warning', 'LOGIN_FAILED', 'Login attempted with invalid portal role.', ['email' => $email, 'user_id' => $user->id, 'role' => $portal]);
             throw BusinessException::invalidCredentials();
         }
 

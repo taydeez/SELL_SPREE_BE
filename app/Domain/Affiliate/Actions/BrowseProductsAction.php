@@ -14,6 +14,7 @@ class BrowseProductsAction
     public function run(Affiliate $affiliate, ?string $type, ?string $search): LengthAwarePaginator
     {
         $products = Product::active()
+            ->where('affiliate_enabled', true)
             ->with(['seller', 'productFiles'])
             ->when($type, fn ($q, $t) => $q->where('type', $t))
             ->when($search, fn ($q, $s) => $q->where('title', 'ilike', "%{$s}%"))

@@ -31,9 +31,11 @@ class OrderResource extends JsonResource
                 'store_name' => $this->seller->store_name,
                 'user_email' => $this->seller->user?->email,
             ]),
-            'affiliate_link' => $this->whenLoaded('affiliateLink', fn () => $this->affiliateLink ? [
-                'id'   => $this->affiliateLink->id,
-                'slug' => $this->affiliateLink->slug,
+            'affiliate' => $this->whenLoaded('affiliateLink', fn () => $this->affiliateLink?->affiliate ? [
+                'id'           => $this->affiliateLink->affiliate->id,
+                'display_name' => $this->affiliateLink->affiliate->display_name,
+                'email'        => $this->affiliateLink->affiliate->user?->email,
+                'link_slug'    => $this->affiliateLink->slug,
             ] : null),
             'created_at' => $this->created_at,
         ];

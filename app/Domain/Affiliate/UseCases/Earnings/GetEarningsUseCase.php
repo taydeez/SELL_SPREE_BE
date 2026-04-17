@@ -20,10 +20,8 @@ class GetEarningsUseCase
     {
         $affiliate = $this->resolveAffiliate->run($userId);
 
-        $paid = isset($filters['paid'])
-            ? filter_var($filters['paid'], FILTER_VALIDATE_BOOLEAN)
-            : null;
+        $status = $filters['status'] ?? null;
 
-        return EarningsResource::collection($this->getEarnings->run($affiliate, $paid));
+        return EarningsResource::collection($this->getEarnings->run($affiliate, $status));
     }
 }

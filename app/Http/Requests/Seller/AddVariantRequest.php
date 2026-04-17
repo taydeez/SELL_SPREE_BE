@@ -12,7 +12,7 @@ class AddVariantRequest extends FormRequest
     {
         return [
             'name'  => ['required', 'string', 'max:100'],
-            'price' => ['required', 'integer', 'min:0'],
+            'price' => ['required', 'integer', 'min:0', 'multiple_of:100'],
             'stock' => ['nullable', 'integer', 'min:0'],
         ];
     }

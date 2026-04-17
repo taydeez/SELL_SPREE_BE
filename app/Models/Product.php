@@ -31,6 +31,8 @@ class Product extends Model implements HasMedia
         'type',
         'price',
         'status',
+        'affiliate_enabled',
+        'affiliate_commission_rate',
         'sales_count',
         'view_count',
     ];
@@ -40,9 +42,11 @@ class Product extends Model implements HasMedia
         return [
             'type'        => ProductType::class,
             'status'      => ProductStatus::class,
-            'price'       => 'integer',
-            'sales_count' => 'integer',
-            'view_count'  => 'integer',
+            'price'             => 'integer',
+            'affiliate_enabled'        => 'boolean',
+            'affiliate_commission_rate' => 'integer',
+            'sales_count'              => 'integer',
+            'view_count'        => 'integer',
         ];
     }
 
