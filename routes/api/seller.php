@@ -7,6 +7,8 @@ use App\Http\Controllers\Auth\Seller\LoginController;
 use App\Http\Controllers\Auth\Seller\LogoutController;
 use App\Http\Controllers\Auth\Seller\RefreshTokenController;
 use App\Http\Controllers\Auth\Seller\RegisterController;
+use App\Http\Controllers\Auth\Social\FacebookRedirectController;
+use App\Http\Controllers\Auth\Social\GoogleRedirectController;
 use App\Http\Controllers\Auth\User\SwitchRoleController;
 use App\Http\Controllers\Seller\Dashboard\GetStatsController;
 use App\Http\Controllers\Seller\Order\ListOrdersController;
@@ -38,6 +40,8 @@ use Illuminate\Support\Facades\Route;
 // ─── Auth (public) ───────────────────────────────────────────────────────────
 Route::post('auth/register', RegisterController::class)->middleware('throttle:register');
 Route::post('auth/login', LoginController::class)->middleware('throttle:login');
+Route::get('auth/google', GoogleRedirectController::class)->defaults('portal', 'seller');
+Route::get('auth/facebook', FacebookRedirectController::class);
 
 // ─── Auth (protected) ────────────────────────────────────────────────────────
 Route::middleware('auth:seller')->group(function () {
