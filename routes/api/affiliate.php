@@ -23,12 +23,16 @@ use App\Http\Controllers\Auth\Affiliate\LoginController;
 use App\Http\Controllers\Auth\Affiliate\LogoutController;
 use App\Http\Controllers\Auth\Affiliate\RefreshTokenController;
 use App\Http\Controllers\Auth\Affiliate\RegisterController;
+use App\Http\Controllers\Auth\Social\FacebookRedirectController;
+use App\Http\Controllers\Auth\Social\GoogleRedirectController;
 use App\Http\Controllers\Auth\User\SwitchRoleController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Auth (public) ───────────────────────────────────────────────────────────
 Route::post('auth/register', RegisterController::class)->middleware('throttle:register');
 Route::post('auth/login', LoginController::class)->middleware('throttle:login');
+Route::get('auth/google', GoogleRedirectController::class)->defaults('portal', 'affiliate');
+Route::get('auth/facebook', FacebookRedirectController::class);
 
 // ─── Auth (protected) ────────────────────────────────────────────────────────
 Route::middleware('auth:affiliate')->group(function () {

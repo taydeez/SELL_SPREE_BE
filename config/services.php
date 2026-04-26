@@ -35,11 +35,22 @@ return [
         ],
     ],
 
-    // config/services.php
     'flutterwave' => [
         'public_key'  => env('FLW_PUBLIC_KEY'),
         'secret_key'  => env('FLW_SECRET_KEY'),
         'secret_hash' => env('FLW_SECRET_HASH'),
+    ],
+
+    'google' => [
+        'client_id'     => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect'      => env('GOOGLE_REDIRECT_URI'),
+    ],
+
+    'facebook' => [
+        'client_id'     => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect'      => env('FACEBOOK_REDIRECT_URI'),
     ],
 
 ];
