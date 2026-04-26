@@ -1,0 +1,70 @@
+# ==========================================
+# Laravel migration runner (Railway-safe)
+# ==========================================
+FROM php:8.3-cli-alpine
+
+# ------------------------------------------
+# System deps
+# ------------------------------------------
+RUN apk add --no-cache \
+    bash \
+    git \
+    curl \
+    unzip \
+    libzip-dev \
+    icu-dev \
+    oniguruma-dev \
+    postgresql-dev \
+    mariadb-dev \
+    zlib-dev \
+    autoconf \
+    gcc \
+    g++ \
+    make
+
+# ------------------------------------------
+# PHP extensions
+# ------------------------------------------
+RUN docker-php-ext-install \
+    pdo \
+    pdo_mysql \
+    pdo_pgsql \
+    bcmath \
+    intl \
+    zip \
+    pcntl \
+    posix
+
+
+# ------------------------------------------
+# Composer
+# ------------------------------------------
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+# ------------------------------------------
+# Copy ONLY composer files first
+# ------------------------------------------
+COPY composer.json composer.lock ./
+
+RUN composer install \
+    --no-dev \
+    --prefer-dist \
+    --no-scripts \
+    --no-interaction
+
+# ------------------------------------------
+# Now copy the rest of the app
+# ------------------------------------------
+COPY . .
+
+# ------------------------------------------
+# Guarantee no cached config
+# ------------------------------------------
+RUN rm -f bootstrap/cache/config.php
+
+# ------------------------------------------
+# Runtime command (env exists here)
+# ------------------------------------------
+CMD php artisan migrate:fresh --seed

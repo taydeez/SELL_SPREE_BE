@@ -63,16 +63,16 @@ class HandleOrderPaidEvent
 
                     $this->generateTicketQrCodeAction->run($order);
 
-//                    \Illuminate\Support\Facades\Notification::route('mail', $order->buyer_email)
-//                        ->notify(new TicketPurchasedNotification($order));
+                    \Illuminate\Support\Facades\Notification::route('mail', $order->buyer_email)
+                        ->notify(new TicketPurchasedNotification($order));
                 } else {
                     $order->update([
                         'download_token' => Str::random(64),
                         'expires_at'     => now()->addHours(48),
                     ]);
 
-//                    \Illuminate\Support\Facades\Notification::route('mail', $order->buyer_email)
-//                        ->notify(new OrderPaidNotification($order));
+                    \Illuminate\Support\Facades\Notification::route('mail', $order->buyer_email)
+                        ->notify(new OrderPaidNotification($order));
                 }
 
                 // Create affiliate earning ledger entry if applicable

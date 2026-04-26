@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace App\Notifications\Order;
 
+use App\Domain\Shared\Actions\CreateAppLogAction;
 use App\Models\Order;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class OrderPaidNotification extends Notification
+class OrderPaidNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(private readonly Order $order) {}
 
     public function via(object $notifiable): array
@@ -33,5 +38,20 @@ class OrderPaidNotification extends Notification
             ->line('You can also view your order details here:')
             ->line("[View order]({$successUrl})")
             ->line('If you have any issues, reply to this email for support.');
+    }
+
+    public function failed(\Throwable $e): void
+    {
+        app(CreateAppLogAction::class)->run(
+            level: 'error',
+            event: 'MAIL_SEND_FAILED',
+            message: $e->getMessage(),
+            context: [
+                'notification' => self::class,
+                'order_id'     => $this->order->id,
+                'buyer_email'  => $this->order->buyer_email,
+                'exception'    => get_class($e),
+            ],
+        );
     }
 }

@@ -8,6 +8,9 @@ use App\Domain\Shared\Actions\CreateAppLogAction;
 use App\Exceptions\BusinessException;
 use App\Models\AffiliateSale;
 use App\Models\AffiliateWithdrawal;
+use App\Notifications\Affiliate\WithdrawalFailedNotification;
+use App\Notifications\Affiliate\WithdrawalPaidNotification;
+use App\Notifications\Affiliate\WithdrawalProcessingNotification;
 use App\Services\FlutterwaveService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -43,6 +46,8 @@ class ProcessAffiliatePayoutAction
                 'failure_reason' => $reason,
             ]);
 
+            $withdrawal->affiliate->user->notify(new WithdrawalFailedNotification($withdrawal->fresh()));
+
             $this->log->run('error', 'AFFILIATE_PAYOUT_FAILED', 'Flutterwave transfer initiation failed.', [
                 'withdrawal_id' => $withdrawal->id,
                 'affiliate_id'  => $withdrawal->affiliate_id,
@@ -66,12 +71,16 @@ class ProcessAffiliatePayoutAction
                 AffiliateSale::where('affiliate_id', $withdrawal->affiliate_id)
                     ->where('status', 'available')
                     ->update(['status' => 'settled', 'settled_at' => now(), 'is_paid' => true]);
+
+                $withdrawal->affiliate->user->notify(new WithdrawalPaidNotification($withdrawal->fresh()));
             } else {
                 $withdrawal->update([
                     'status'          => 'processing',
                     'flw_transfer_id' => $transferId,
                     'flw_reference'   => $reference,
                 ]);
+
+                $withdrawal->affiliate->user->notify(new WithdrawalProcessingNotification($withdrawal->fresh()));
             }
         });
 
