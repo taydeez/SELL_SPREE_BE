@@ -33,6 +33,7 @@ RUN docker-php-ext-install \
     opcache \
     pcntl \
     posix \
+    ext-http \
     && pecl install redis \
     && docker-php-ext-enable redis
 
