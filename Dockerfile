@@ -19,6 +19,10 @@ RUN apk add --no-cache \
     redis \
     nodejs \
     npm \
+    curl-dev \
+    libevent-dev \
+    brotli-dev \
+    openssl-dev \
     $PHPIZE_DEPS
 
 # =========================
@@ -27,20 +31,23 @@ RUN apk add --no-cache \
 RUN docker-php-ext-install \
     pdo \
     pdo_mysql \
+    pdo_pgsql \
     bcmath \
     intl \
     zip \
     opcache \
     pcntl \
     posix \
-    ext-http \
-    && pecl install redis \
-    && docker-php-ext-enable redis
+    exif \
+    && pecl install redis raphf pecl_http \
+    && docker-php-ext-enable redis raphf http
 
 # =========================
 # Composer
 # =========================
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # =========================
 # App directory
@@ -51,20 +58,12 @@ WORKDIR /var/www/html
 COPY . .
 
 # =========================
-# Installing horizon manually here because it
-# messes up my local windows composer
-# =========================
-
-# =========================
 # Install PHP dependencies FIRST
 # =========================
 RUN composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction
-
-
-
 
 # Ensure no cached config is baked into image
 RUN rm -f bootstrap/cache/config.php
@@ -76,7 +75,6 @@ RUN npm install \
     && npm run build
 
 RUN apk del nodejs npm
-
 
 # =========================
 # Laravel runtime directories
