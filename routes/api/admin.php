@@ -47,13 +47,19 @@ use App\Http\Controllers\Admin\Role\ListRolesController;
 use App\Http\Controllers\Admin\Role\SyncRolePermissionsController;
 use App\Http\Controllers\Admin\Logs\ListLogsController;
 use App\Http\Controllers\Auth\Admin\CurrentUserController;
+use App\Http\Controllers\Auth\Admin\ForgotPasswordController;
 use App\Http\Controllers\Auth\Admin\LoginController;
 use App\Http\Controllers\Auth\Admin\LogoutController;
 use App\Http\Controllers\Auth\Admin\RefreshTokenController;
+use App\Http\Controllers\Auth\Admin\ResetPasswordController;
+use App\Http\Controllers\Auth\Admin\VerifyResetCodeController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Auth (public) ───────────────────────────────────────────────────────────
 Route::post('auth/login', LoginController::class)->middleware('throttle:login');
+Route::post('auth/forgot-password', ForgotPasswordController::class)->middleware('throttle:6,1');
+Route::post('auth/verify-reset-code', VerifyResetCodeController::class)->middleware('throttle:6,1');
+Route::post('auth/reset-password', ResetPasswordController::class)->middleware('throttle:6,1');
 
 // ─── Auth (protected) ────────────────────────────────────────────────────────
 Route::middleware('auth:admin')->group(function () {

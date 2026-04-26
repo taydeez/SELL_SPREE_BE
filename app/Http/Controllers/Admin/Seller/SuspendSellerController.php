@@ -16,7 +16,7 @@ class SuspendSellerController extends Controller
 
     public function __invoke(Seller $seller): JsonResponse
     {
-        $this->action->run($seller->user);
+        $this->action->run($seller->user, 'seller');
 
         return ApiResponse::success(message: 'Seller suspended.');
     }

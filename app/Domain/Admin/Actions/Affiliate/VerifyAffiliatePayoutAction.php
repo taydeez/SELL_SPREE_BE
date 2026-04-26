@@ -8,6 +8,8 @@ use App\Domain\Shared\Actions\CreateAppLogAction;
 use App\Exceptions\BusinessException;
 use App\Models\AffiliateSale;
 use App\Models\AffiliateWithdrawal;
+use App\Notifications\Affiliate\WithdrawalFailedNotification;
+use App\Notifications\Affiliate\WithdrawalPaidNotification;
 use App\Services\FlutterwaveService;
 use Illuminate\Support\Facades\DB;
 
@@ -35,6 +37,8 @@ class VerifyAffiliatePayoutAction
                 AffiliateSale::where('affiliate_id', $withdrawal->affiliate_id)
                     ->where('status', 'available')
                     ->update(['status' => 'settled', 'settled_at' => now(), 'is_paid' => true]);
+
+                $withdrawal->affiliate->user->notify(new WithdrawalPaidNotification($withdrawal->fresh()));
             });
 
             $this->log->run('info', 'AFFILIATE_PAYOUT_VERIFIED', 'Affiliate payout verified and settled.', [
@@ -47,6 +51,8 @@ class VerifyAffiliatePayoutAction
             $reason = $result['data']['complete_message'] ?? 'Transfer failed.';
 
             $withdrawal->update(['status' => 'failed', 'failure_reason' => $reason]);
+
+            $withdrawal->affiliate->user->notify(new WithdrawalFailedNotification($withdrawal->fresh()));
 
             $this->log->run('error', 'AFFILIATE_PAYOUT_FAILED', 'Affiliate payout transfer failed on verification.', [
                 'withdrawal_id' => $withdrawal->id,

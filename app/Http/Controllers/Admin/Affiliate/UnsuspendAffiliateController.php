@@ -16,7 +16,7 @@ class UnsuspendAffiliateController extends Controller
 
     public function __invoke(Affiliate $affiliate): JsonResponse
     {
-        $this->action->run($affiliate->user);
+        $this->action->run($affiliate->user, 'affiliate');
 
         return ApiResponse::success(message: 'Affiliate unsuspended.');
     }
