@@ -25,6 +25,11 @@ class Affiliate extends Model implements HasMedia
         'slug',
         'payout_email',
         'commission_rate',
+        'bank_code',
+        'bank_name',
+        'account_number',
+        'account_name',
+        'flw_recipient_id',
     ];
 
     protected function casts(): array
@@ -65,8 +70,25 @@ class Affiliate extends Model implements HasMedia
         return $this->hasMany(AffiliateSale::class);
     }
 
+    public function withdrawals(): HasMany
+    {
+        return $this->hasMany(AffiliateWithdrawal::class);
+    }
+
     public function payouts(): MorphMany
     {
         return $this->morphMany(Payout::class, 'payable');
+    }
+
+    // ─── Helpers ─────────────────────────────────────────────────────────────
+
+    public function hasBankAccount(): bool
+    {
+        return (bool) $this->account_number;
+    }
+
+    public function availableBalance(): int
+    {
+        return (int) $this->sales()->where('status', 'available')->sum('commission_amount');
     }
 }

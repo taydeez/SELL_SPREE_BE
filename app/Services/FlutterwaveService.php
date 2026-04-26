@@ -10,6 +10,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class FlutterwaveService
@@ -87,4 +88,56 @@ class FlutterwaveService
 
         return $response->json();
     }
+
+
+    public function verifyBankAccount(array $data)
+    {
+        $response = Http::withToken($this->secretKey)
+            ->post("{$this->baseUrl}/accounts/resolve", $data);
+
+        return $response->json();
+    }
+
+
+    public function createSubAccount(array $data): array
+    {
+        $response = Http::withToken($this->secretKey)
+            ->post("{$this->baseUrl}/subaccounts", $data);
+
+        return $response->json();
+    }
+
+    public function getSubAccounts(): array
+    {
+        $response = Http::withToken($this->secretKey)
+            ->get("{$this->baseUrl}/subaccounts");
+
+        return $response->json();
+    }
+
+    public function initiateTransfer(array $data): array
+    {
+        $response = Http::withToken($this->secretKey)
+            ->post("{$this->baseUrl}/transfers", [
+                'account_bank'   => $data['bank_code'],
+                'account_number' => $data['account_number'],
+                'amount'         => $data['amount'] / 100,
+                'currency'       => 'NGN',
+                'reference'      => $data['reference'],
+                'narration'      => $data['narration'] ?? 'Affiliate earnings payout',
+            ]);
+
+        return $response->json();
+    }
+
+    public function verifyTransfer(string $id): array
+    {
+        $response = Http::withToken($this->secretKey)
+            ->get("{$this->baseUrl}/transfers/{$id}");
+
+        return $response->json();
+    }
+
+
+
 }

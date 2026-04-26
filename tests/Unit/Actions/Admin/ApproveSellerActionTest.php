@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Domain\Admin\Actions\ApproveSellerAction;
+use App\Domain\Admin\Actions\Seller\ApproveSellerAction;
 use App\Exceptions\BusinessException;
 use App\Models\Seller;
 

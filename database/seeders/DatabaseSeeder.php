@@ -14,10 +14,10 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             SellerSeeder::class,
             AffiliateSeeder::class,
-            ProductSeeder::class,
-            TagSeeder::class,
-            OrderSeeder::class,
-            PaymentConfigSeeder::class,
+            //ProductSeeder::class,
+            //TagSeeder::class,
+            //OrderSeeder::class,
+            //PaymentConfigSeeder::class,
         ]);
     }
 }

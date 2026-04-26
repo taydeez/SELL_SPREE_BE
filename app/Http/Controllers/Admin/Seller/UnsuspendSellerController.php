@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin\Seller;
 
-use App\Domain\Admin\Actions\UnsuspendUserAction;
+use App\Domain\Admin\Actions\User\UnsuspendUserAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ApiResponse;
 use App\Models\Seller;
@@ -16,7 +16,7 @@ class UnsuspendSellerController extends Controller
 
     public function __invoke(Seller $seller): JsonResponse
     {
-        $this->action->run($seller->user);
+        $this->action->run($seller->user, 'seller');
 
         return ApiResponse::success(message: 'Seller unsuspended.');
     }

@@ -6,10 +6,11 @@ namespace App\Domain\Affiliate\UseCases;
 
 use App\Domain\Affiliate\Actions\CreateAffiliateProfileAction;
 use App\Domain\Auth\Actions\CreateUserAction;
+use App\Domain\Seller\Actions\CreateSellerProfileAction;
+use App\Domain\Shared\Actions\CreateAppLogAction;
 use App\Enums\UserRole;
 use App\Events\Affiliate\AffiliateRegistered;
-use App\Models\Affiliate;
-use App\Models\User;
+use App\Http\Resources\Affiliate\AffiliateProfileResource;
 use Illuminate\Support\Facades\DB;
 
 class RegisterAffiliateUseCase
@@ -17,22 +18,30 @@ class RegisterAffiliateUseCase
     public function __construct(
         private readonly CreateUserAction $createUser,
         private readonly CreateAffiliateProfileAction $createProfile,
+        private readonly CreateSellerProfileAction $createSellerProfile,
+        private readonly CreateAppLogAction $log,
     ) {}
 
-    public function run(array $data): array
+    public function run(array $data): AffiliateProfileResource
     {
-        return DB::transaction(function () use ($data): array {
-            /** @var User $user */
-            $user = $this->createUser->run($data, UserRole::Affiliate);
+        try {
+            return DB::transaction(function () use ($data): AffiliateProfileResource {
+                $user      = $this->createUser->run($data, UserRole::Affiliate);
+                $affiliate = $this->createProfile->run($user, $data);
 
-            $user->sendEmailVerificationNotification();
+                // Ensure seller profile exists for role switching
+                $this->createSellerProfile->run($user, []);
 
-            /** @var Affiliate $affiliate */
-            $affiliate = $this->createProfile->run($user, $data);
+                $user->sendEmailVerificationNotification();
+                AffiliateRegistered::dispatch($user, $affiliate);
 
-            AffiliateRegistered::dispatch($user, $affiliate);
+                $this->log->run('info', 'AFFILIATE_REGISTERED', "New affiliate registered: {$user->email}.", ['user_id' => $user->id, 'email' => $user->email]);
 
-            return compact('user', 'affiliate');
-        });
+                return new AffiliateProfileResource($affiliate->load('user'));
+            });
+        } catch (\Throwable $e) {
+            $this->log->run('error', 'AFFILIATE_REGISTRATION_FAILED', 'Affiliate registration failed.', ['email' => $data['email'] ?? null, 'error' => $e->getMessage()]);
+            throw $e;
+        }
     }
 }

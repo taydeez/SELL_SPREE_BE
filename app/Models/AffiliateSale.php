@@ -19,6 +19,9 @@ class AffiliateSale extends Model
         'order_id',
         'commission_amount',
         'is_paid',
+        'status',
+        'available_at',
+        'settled_at',
     ];
 
     protected function casts(): array
@@ -26,7 +29,24 @@ class AffiliateSale extends Model
         return [
             'commission_amount' => 'integer',
             'is_paid'           => 'boolean',
+            'available_at'      => 'datetime',
+            'settled_at'        => 'datetime',
         ];
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeAvailable($query)
+    {
+        return $query->where('status', 'available');
+    }
+
+    public function scopeSettled($query)
+    {
+        return $query->where('status', 'settled');
     }
 
     public function affiliate(): BelongsTo

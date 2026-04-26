@@ -10,17 +10,29 @@ use App\Models\User;
 
 class CreateUserAction
 {
+    public const ALL_ROLES = ['seller', 'affiliate', 'customer'];
+
     public function run(array $data, UserRole $role): User
     {
-        if (User::where('email', $data['email'])->exists()) {
-            throw BusinessException::alreadyExists('Email');
+        $existing = User::where('email', $data['email'])->first();
+
+        if ($existing) {
+            if ($existing->hasRole($role->value)) {
+                throw BusinessException::alreadyExists('Email');
+            }
+
+            // All roles are always granted; just ensure active_role is set
+            $existing->update(['active_role' => $role->value, 'roles' => self::ALL_ROLES]);
+
+            return $existing;
         }
 
         return User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => $data['password'],
-            'role'     => $role->value,
+            'name'        => $data['name'],
+            'email'       => $data['email'],
+            'password'    => $data['password'],
+            'active_role' => $role->value,
+            'roles'       => self::ALL_ROLES,
         ]);
     }
 }

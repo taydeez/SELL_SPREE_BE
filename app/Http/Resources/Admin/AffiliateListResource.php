@@ -16,7 +16,6 @@ class AffiliateListResource extends JsonResource
             'display_name'    => $this->display_name,
             'slug'            => $this->slug,
             'payout_email'    => $this->payout_email,
-            'commission_rate' => $this->commission_rate,
             'user'            => [
                 'id'                => $this->user?->id,
                 'name'              => $this->user?->name,

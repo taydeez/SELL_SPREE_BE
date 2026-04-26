@@ -36,6 +36,16 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('api/v1/public')
                 ->name('public.')
                 ->group(base_path('routes/api/public.php'));
+
+            Route::middleware(['api', ForceJsonResponse::class])
+                ->prefix('api/v1/auth')
+                ->name('auth.')
+                ->group(base_path('routes/api/user-auth.php'));
+
+            Route::middleware(['api', ForceJsonResponse::class])
+                ->prefix('api/v1/customer')
+                ->name('customer.')
+                ->group(base_path('routes/api/customer.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -44,6 +54,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin'          => \App\Http\Middleware\AdminMiddleware::class,
             'seller'         => \App\Http\Middleware\SellerMiddleware::class,
             'affiliate'      => \App\Http\Middleware\AffiliateMiddleware::class,
+            'permission'     => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role'           => \Spatie\Permission\Middleware\RoleMiddleware::class,
            // 'cache.response' => \App\Http\Middleware\CacheResponseMiddleware::class,
         ]);
     })

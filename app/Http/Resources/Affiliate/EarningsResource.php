@@ -14,7 +14,9 @@ class EarningsResource extends JsonResource
         return [
             'id'                => $this->id,
             'commission_amount' => $this->commission_amount,
-            'is_paid'           => $this->is_paid,
+            'status'            => $this->status,
+            'available_at'      => $this->available_at,
+            'settled_at'        => $this->settled_at,
             'order'             => $this->whenLoaded('order', fn () => [
                 'id'          => $this->order->id,
                 'amount'      => $this->order->amount,
@@ -22,8 +24,8 @@ class EarningsResource extends JsonResource
                 'created_at'  => $this->order->created_at,
             ]),
             'link'              => $this->whenLoaded('affiliateLink', fn () => [
-                'id'   => $this->affiliateLink->id,
-                'slug' => $this->affiliateLink->slug,
+                'id'            => $this->affiliateLink->id,
+                'slug'          => $this->affiliateLink->slug,
                 'product_title' => $this->affiliateLink->product?->title,
             ]),
             'created_at'        => $this->created_at,

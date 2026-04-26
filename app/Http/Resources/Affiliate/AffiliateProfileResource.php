@@ -16,7 +16,6 @@ class AffiliateProfileResource extends JsonResource
             'display_name'    => $this->display_name,
             'slug'            => $this->slug,
             'payout_email'    => $this->payout_email,
-            'commission_rate' => $this->commission_rate,
             'avatar_url'      => $this->getFirstMediaUrl('avatar'),
             'user'            => [
                 'id'                => $this->user?->id,
@@ -25,6 +24,10 @@ class AffiliateProfileResource extends JsonResource
                 'email_verified_at' => $this->user?->email_verified_at,
                 'is_suspended'      => $this->user?->is_suspended,
             ],
+            'bank_name'       => $this->bank_name,
+            'bank_code'       => $this->bank_code,
+            'account_number'  => $this->account_number,
+            'account_name'    => $this->account_name,
             'created_at'      => $this->created_at,
         ];
     }

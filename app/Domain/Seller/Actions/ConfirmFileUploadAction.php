@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Domain\Seller\Actions;
 
+use App\Domain\Shared\Actions\CreateAppLogAction;
 use App\Enums\OrderStatus;
+use App\Exceptions\BusinessException;
 use App\Models\Product;
 use App\Models\ProductFile;
-use App\Exceptions\BusinessException;
 
 class ConfirmFileUploadAction
 {
+    public function __construct(private readonly CreateAppLogAction $log) {}
+
     public function run(Product $product, array $data): ProductFile
     {
         if (
@@ -18,6 +21,7 @@ class ConfirmFileUploadAction
             $product->productFiles()->where('collection', 'product_file')->exists() &&
             $product->orders()->where('status', OrderStatus::Paid->value)->exists()
         ) {
+            $this->log->run('warning', 'FILE_REPLACE_BLOCKED', 'File replacement blocked: product has paid orders.', ['product_id' => $product->id]);
             throw BusinessException::invalidOperation('Product file cannot be replaced after a purchase has been made.');
         }
 
