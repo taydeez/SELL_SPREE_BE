@@ -19,10 +19,6 @@ RUN apk add --no-cache \
     redis \
     nodejs \
     npm \
-    curl-dev \
-    libevent-dev \
-    brotli-dev \
-    openssl-dev \
     $PHPIZE_DEPS
 
 # =========================
@@ -31,7 +27,6 @@ RUN apk add --no-cache \
 RUN docker-php-ext-install \
     pdo \
     pdo_mysql \
-    pdo_pgsql \
     bcmath \
     intl \
     zip \
@@ -39,8 +34,8 @@ RUN docker-php-ext-install \
     pcntl \
     posix \
     exif \
-    && pecl install redis raphf pecl_http \
-    && docker-php-ext-enable redis raphf http
+    && pecl install redis \
+    && docker-php-ext-enable redis
 
 # =========================
 # Composer
@@ -58,8 +53,16 @@ WORKDIR /var/www/html
 COPY . .
 
 # =========================
+# Installing horizon manually here because it
+# messes up my local windows composer
+# =========================
+
+# =========================
 # Install PHP dependencies FIRST
 # =========================
+
+RUN composer update
+
 RUN composer install \
     --no-dev \
     --optimize-autoloader \
