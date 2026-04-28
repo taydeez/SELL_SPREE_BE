@@ -18,14 +18,14 @@ class AffiliateFactory extends Factory
 
     public function definition(): array
     {
-        $displayName = $this->faker->name();
+        $displayName = fake()->name();
 
         return [
             'user_id'         => User::factory()->affiliate(),
             'display_name'    => $displayName,
             'slug'            => Str::slug($displayName) . '-' . Str::lower(Str::random(4)),
-            'payout_email'    => $this->faker->safeEmail(),
-            'commission_rate' => $this->faker->numberBetween(5, 20),
+            'payout_email'    => fake()->safeEmail(),
+            'commission_rate' => fake()->numberBetween(5, 20),
         ];
     }
 }

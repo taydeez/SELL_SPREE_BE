@@ -20,12 +20,12 @@ class OrderFactory extends Factory
 
     public function definition(): array
     {
-        $amount      = $this->faker->numberBetween(100000, 5000000); // in cents
+        $amount      = fake()->numberBetween(100000, 5000000); // in cents
         $platformFee = (int) round($amount * 0.10);
         $sellerEarns = $amount - $platformFee;
 
         return [
-            'buyer_email'        => $this->faker->safeEmail(),
+            'buyer_email'        => fake()->safeEmail(),
             'product_id'         => Product::factory()->active(),
             'seller_id'          => Seller::factory()->approved(),
             'affiliate_link_id'  => null,
@@ -34,7 +34,7 @@ class OrderFactory extends Factory
             'seller_earnings'    => $sellerEarns,
             'affiliate_earnings' => 0,
             'status'             => OrderStatus::Pending->value,
-            'payment_provider'   => $this->faker->randomElement(['paystack', 'flutterwave']),
+            'payment_provider'   => fake()->randomElement(['paystack', 'flutterwave']),
             'payment_ref'        => null,
             'download_token'     => null,
             'expires_at'         => null,

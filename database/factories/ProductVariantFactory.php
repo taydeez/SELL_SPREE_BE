@@ -19,11 +19,11 @@ class ProductVariantFactory extends Factory
     {
         return [
             'product_id' => Product::factory()->active(),
-            'name'       => $this->faker->words(2, true),
-            'price'      => $this->faker->optional(0.6)->numberBetween(50000, 500000),
-            'stock'      => $this->faker->optional(0.5)->numberBetween(1, 100),
+            'name'       => fake()->words(2, true),
+            'price'      => fake()->optional(0.6)->numberBetween(50000, 500000),
+            'stock'      => fake()->optional(0.5)->numberBetween(1, 100),
             'is_active'  => true,
-            'sort_order' => $this->faker->numberBetween(0, 10),
+            'sort_order' => fake()->numberBetween(0, 10),
         ];
     }
 
@@ -35,11 +35,11 @@ class ProductVariantFactory extends Factory
     public function ticketTier(): static
     {
         return $this->state([
-            'name'       => $this->faker->randomElement(['General Admission', 'VIP', 'Early Bird', 'Student', 'Premium']),
-            'price'      => $this->faker->numberBetween(100000, 2000000),
-            'stock'      => $this->faker->numberBetween(10, 200),
+            'name'       => fake()->randomElement(['General Admission', 'VIP', 'Early Bird', 'Student', 'Premium']),
+            'price'      => fake()->numberBetween(100000, 2000000),
+            'stock'      => fake()->numberBetween(10, 200),
             'is_active'  => true,
-            'sort_order' => $this->faker->numberBetween(0, 5),
+            'sort_order' => fake()->numberBetween(0, 5),
         ]);
     }
 

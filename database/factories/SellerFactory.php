@@ -18,15 +18,15 @@ class SellerFactory extends Factory
 
     public function definition(): array
     {
-        $storeName = $this->faker->company();
+        $storeName = fake()->company();
 
         return [
             'user_id'         => User::factory()->seller(),
             'store_name'      => $storeName,
             'store_slug'      => Str::slug($storeName) . '-' . Str::lower(Str::random(4)),
-            'bio'             => $this->faker->paragraph(),
+            'bio'             => fake()->paragraph(),
             'avatar_path'     => null,
-            'payout_email'    => $this->faker->safeEmail(),
+            'payout_email'    => fake()->safeEmail(),
             'commission_rate' => 0,
             'is_approved'     => false,
         ];
