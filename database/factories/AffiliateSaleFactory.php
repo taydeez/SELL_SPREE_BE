@@ -23,7 +23,7 @@ class AffiliateSaleFactory extends Factory
             'affiliate_id'      => Affiliate::factory(),
             'affiliate_link_id' => AffiliateLink::factory(),
             'order_id'          => Order::factory()->paid(),
-            'commission_amount' => fake()->numberBetween(1000, 50000),
+            'commission_amount' => $this->faker->numberBetween(1000, 50000),
             'is_paid'           => false,
         ];
     }

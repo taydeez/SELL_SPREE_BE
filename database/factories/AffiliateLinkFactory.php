@@ -24,8 +24,8 @@ class AffiliateLinkFactory extends Factory
             'product_id'   => Product::factory()->active(),
             'slug'         => Str::lower(Str::random(10)),
             'is_active'    => true,
-            'view_count'   => fake()->numberBetween(0, 500),
-            'click_count'  => fake()->numberBetween(0, 200),
+            'view_count'   => $this->faker->numberBetween(0, 500),
+            'click_count'  => $this->faker->numberBetween(0, 200),
             'sales_count'  => 0,
             'total_earned' => 0,
         ];

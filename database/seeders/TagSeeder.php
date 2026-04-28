@@ -6,11 +6,13 @@ namespace Database\Seeders;
 
 use App\Models\Product;
 use App\Models\Tag;
+use Faker\Generator as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class TagSeeder extends Seeder
 {
+    public function __construct(protected Faker $faker) {}
     private const TAGS = [
         // eBook
         'Personal Finance', 'Self Improvement', 'Productivity', 'Business', 'Marketing',
@@ -54,7 +56,7 @@ class TagSeeder extends Seeder
 
         Product::each(function (Product $product) use ($tags) {
             $product->tags()->syncWithoutDetaching(
-                $tags->random(fake()->numberBetween(1, 4))->pluck('id')->all()
+                $tags->random($this->faker->numberBetween(1, 4))->pluck('id')->all()
             );
         });
 
