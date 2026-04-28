@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Payment\Flutterwave\FlutterwaveVerifyController;
+use App\Http\Controllers\Public\HealthController;
 use App\Http\Controllers\Public\Order\CheckExistingOrderController;
 use App\Http\Controllers\Public\Order\CreateOrderController;
 use App\Http\Controllers\Public\Order\DownloadOrderController;
@@ -12,6 +13,8 @@ use App\Http\Controllers\Payment\Flutterwave\FlutterwaveInitController;
 use App\Http\Controllers\Public\Affiliate\TrackAffiliateLinkController;
 use App\Http\Controllers\Public\Ticket\ValidateTicketController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('health', HealthController::class);
 
 Route::get('products/{slug}', ShowPublicProductController::class);
 Route::get('go/{slug}',       TrackAffiliateLinkController::class);
