@@ -9,10 +9,13 @@ use App\Models\Product;
 use App\Models\ProductEvent;
 use App\Models\ProductVariant;
 use App\Models\Seller;
+use Faker\Generator as Faker;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
 {
+    public function __construct(protected Faker $faker) {}
+
     public function run(): void
     {
         $sellers = Seller::approved()->get();
@@ -33,7 +36,7 @@ class ProductSeeder extends Seeder
             foreach ($products as $product) {
                 if ($product->type->hasVariants()) {
                     $variantFactory = ProductVariant::factory()
-                        ->count(fake()->numberBetween(2, 4))
+                        ->count($this->faker->numberBetween(2, 4))
                         ->state(['product_id' => $product->id]);
 
                     if ($product->type === ProductType::Ticket) {

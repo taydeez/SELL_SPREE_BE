@@ -24,9 +24,9 @@ class PayoutFactory extends Factory
         return [
             'payable_type' => Seller::class,
             'payable_id'   => $seller->id,
-            'amount'       => fake()->numberBetween(5000, 500000),
+            'amount'       => $this->faker->numberBetween(5000, 500000),
             'status'       => PayoutStatus::Pending->value,
-            'provider'     => fake()->randomElement(['paystack', 'flutterwave']),
+            'provider'     => $this->faker->randomElement(['paystack', 'flutterwave']),
             'reference'    => null,
         ];
     }

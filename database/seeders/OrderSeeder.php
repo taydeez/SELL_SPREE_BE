@@ -11,10 +11,13 @@ use App\Models\AffiliateSale;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Seller;
+use Faker\Generator as Faker;
 use Illuminate\Database\Seeder;
 
 class OrderSeeder extends Seeder
 {
+    public function __construct(protected Faker $faker) {}
+
     public function run(): void
     {
         $sellers    = Seller::approved()->with('products.variants')->get();
@@ -91,7 +94,7 @@ class OrderSeeder extends Seeder
                 // 3 paid ticket orders
                 for ($i = 0; $i < 3; $i++) {
                     Order::factory()
-                        ->ticketPaid($variant, fake()->name())
+                        ->ticketPaid($variant, $this->faker->name())
                         ->state([
                             'product_id' => $ticketProduct->id,
                             'seller_id'  => $seller->id,
@@ -101,7 +104,7 @@ class OrderSeeder extends Seeder
 
                 // 1 checked-in ticket order
                 $checkedIn = Order::factory()
-                    ->ticketPaid($variant, fake()->name())
+                    ->ticketPaid($variant, $this->faker->name())
                     ->state([
                         'product_id'    => $ticketProduct->id,
                         'seller_id'     => $seller->id,
@@ -111,7 +114,7 @@ class OrderSeeder extends Seeder
 
                 // 1 pending ticket order (payment not completed)
                 Order::factory()
-                    ->ticket($variant, fake()->name())
+                    ->ticket($variant, $this->faker->name())
                     ->state([
                         'product_id' => $ticketProduct->id,
                         'seller_id'  => $seller->id,
