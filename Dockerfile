@@ -65,7 +65,6 @@ COPY . .
 RUN composer update
 
 RUN composer install \
-    --no-dev \
     --optimize-autoloader \
     --no-interaction
 
