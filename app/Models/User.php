@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Notifications\Auth\VerifyEmailNotification;
 use App\Traits\HasUlid;
 use Database\Factories\UserFactory;
+use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,10 +16,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable implements JWTSubject, MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasUlid, Notifiable, SoftDeletes;
+    use HasFactory, HasUlid, MustVerifyEmail, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -69,6 +72,11 @@ class User extends Authenticatable implements JWTSubject
     public function affiliate(): HasOne
     {
         return $this->hasOne(Affiliate::class);
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailNotification());
     }
 
     // ─── Role helpers ────────────────────────────────────────────────────────

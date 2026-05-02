@@ -9,4 +9,5 @@ return [
     Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
     Spatie\Permission\PermissionServiceProvider::class,
     Spatie\MediaLibrary\MediaLibraryServiceProvider::class,
+    App\Providers\HorizonServiceProvider::class,
 ];
